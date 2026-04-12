@@ -1,0 +1,45 @@
+{% extends 'appointments/base.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <p class="card-text display-4">{{ total_users }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Doctors</h5>
+                <p class="card-text display-4">{{ total_doctors }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Patients</h5>
+                <p class="card-text display-4">{{ total_patients }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Appointments</h5>
+                <p class="card-text display-4">{{ total_appointments }}</p>
+                <small>Pending: {{ pending_appointments }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4"><a href="{% url 'admin_users' %}" class="btn btn-outline-primary w-100">Manage Users</a></div>
+    <div class="col-md-4"><a href="{% url 'admin_specializations' %}" class="btn btn-outline-primary w-100">Manage Specializations</a></div>
+    <div class="col-md-4"><a href="{% url 'admin_doctors' %}" class="btn btn-outline-primary w-100">Manage Doctors</a></div>
+</div>
+<div class="mt-3"><a href="{% url 'admin_appointments' %}" class="btn btn-outline-secondary w-100">View All Appointments</a></div>
+{% endblock %}

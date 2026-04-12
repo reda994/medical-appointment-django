@@ -1,0 +1,26 @@
+{% extends 'appointments/base.html' %}
+{% block content %}
+<h2>My Appointments</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for app in appointments %}
+        <tr>
+            <td>Dr. {{ app.doctor.user.username }}</td>
+            <td>{{ app.slot.date }}</td>
+            <td>{{ app.slot.start_time }} - {{ app.slot.end_time }}</td>
+            <td><span class="badge bg-{% if app.status == 'pending' %}warning{% elif app.status == 'accepted' %}success{% elif app.status == 'rejected' %}danger{% else %}secondary{% endif %}">{{ app.status }}</span></td>
+            <td>
+                {% if app.status == 'pending' or app.status == 'accepted' %}
+                    <a href="{% url 'cancel_appointment' app.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Cancel appointment?')">Cancel</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No appointments yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'appointments/base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>{{ title }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3"><label>Name</label><input type="text" name="name" class="form-control" value="{{ spec.name|default:'' }}" required></div>
+            <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="3">{{ spec.description|default:'' }}</textarea></div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'admin_specializations' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

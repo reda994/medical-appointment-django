@@ -1,0 +1,15 @@
+{% extends 'appointments/base.html' %}
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome, {{ user.username }}!</h1>
+    <p class="lead">You are logged in as a {{ user.role }}.</p>
+    <hr class="my-4">
+    {% if user.role == 'patient' %}
+        <p>You have {{ upcoming_appointments|length }} upcoming appointment(s).</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'doctor_list' %}" role="button">Book Appointment</a>
+    {% elif user.role == 'doctor' %}
+        <p>You have {{ pending_appointments|length }} pending appointment(s).</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'doctor_appointments' %}" role="button">View Appointments</a>
+    {% endif %}
+</div>
+{% endblock %}

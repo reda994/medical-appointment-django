@@ -1,0 +1,15 @@
+{% extends 'appointments/base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>Book Appointment with Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
+        <p><strong>Specialization:</strong> {{ doctor.specialization.name|default:"Not specified" }}</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Book Now</button>
+            <a href="{% url 'doctor_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

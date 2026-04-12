@@ -1,0 +1,30 @@
+{% extends 'appointments/base.html' %}
+{% block content %}
+<h2>Doctors</h2>
+<form method="get" class="mb-3">
+    <label>Filter by Specialization:</label>
+    <select name="specialization" class="form-select w-auto d-inline-block">
+        <option value="">All</option>
+        {% for spec in specializations %}
+            <option value="{{ spec.id }}" {% if selected_spec == spec.id|stringformat:"s" %}selected{% endif %}>{{ spec.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+<div class="row">
+    {% for doctor in doctors %}
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h5>
+                    <p class="card-text">Specialization: {{ doctor.specialization.name|default:"Not specified" }}</p>
+                    <p class="card-text">{{ doctor.bio|truncatewords:20 }}</p>
+                    <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-success">Book Appointment</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No doctors found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

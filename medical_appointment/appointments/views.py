@@ -5,47 +5,39 @@ from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.db.models import Q
-from .models import User, DoctorProfile, PatientProfile, Specialization, AvailabilitySlot, Appointment
+from django.db.models import Q, Avg
+from django.http import JsonResponse
+from .models import User, DoctorProfile, PatientProfile, Specialization, AvailabilitySlot, Appointment, DoctorRating
 from .forms import UserRegisterForm, AdminUserCreateForm, DoctorProfileForm, PatientProfileForm, AvailabilitySlotForm, AppointmentBookForm
 from .decorators import role_required
 from django.utils import timezone
 
-# -------- Authentication Views --------
-def register(request):
-    # Public registration: only Patient or Doctor
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, f"Account created successfully! Welcome {user.username}.")
-            return redirect('home')
-    else:
-        form = UserRegisterForm()
-    return render(request, 'appointments/register.html', {'form': form})
-
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, f"Welcome back {user.username}!")
-            return redirect('home')
-        else:
-            messages.error(request, "Invalid username or password.")
-    return render(request, 'appointments/login.html')
-
-def user_logout(request):
-    logout(request)
-    messages.info(request, "You have been logged out.")
-    return redirect('login')
-
-# -------- Home View --------
-@login_required
+# -------- Public Landing Page (no login required) --------
 def home(request):
+    """Public landing page with doctor search and preview"""
+    # Get top 6 doctors for preview
+    top_doctors = DoctorProfile.objects.select_related('user', 'specialization').annotate(
+        avg_rating=Avg('ratings__rating')
+    )[:6]
+    
+    doctors_data = []
+    for doc in top_doctors:
+        doctors_data.append({
+            'id': doc.id,
+            'name': f"Dr. {doc.user.get_full_name() or doc.user.username}",
+            'specialization': doc.specialization.name if doc.specialization else 'General',
+            'avg_rating': round(doc.avg_rating or 0, 1),
+        })
+    
+    context = {
+        'top_doctors': doctors_data,
+    }
+    return render(request, 'appointments/home.html', context)
+
+# -------- User Dashboard (requires login) --------
+@login_required
+def dashboard(request):
+    """Authenticated user dashboard (was the old home view)"""
     context = {}
     if request.user.role == 'patient':
         patient_profile, created = PatientProfile.objects.get_or_create(user=request.user)
@@ -64,7 +56,96 @@ def home(request):
         context['pending_appointments'] = pending
     elif request.user.role == 'admin':
         return redirect('admin_dashboard')
-    return render(request, 'appointments/home.html', context)
+    return render(request, 'appointments/dashboard.html', context)
+
+# -------- Authentication Views --------
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f"Account created successfully! Welcome {user.username}.")
+            return redirect('dashboard')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'appointments/register.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"Welcome back {user.username}!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Invalid username or password.")
+    return render(request, 'appointments/login.html')
+
+def user_logout(request):
+    logout(request)
+    messages.info(request, "You have been logged out.")
+    return redirect('login')
+
+# ==================== NEW SEARCH & RATING ENDPOINTS ====================
+def search_doctors(request):
+    """AJAX search endpoint for doctors by name or specialty"""
+    query = request.GET.get('q', '')
+    specialty = request.GET.get('specialty', '')
+    doctors = DoctorProfile.objects.select_related('user', 'specialization').all()
+    
+    if query:
+        doctors = doctors.filter(
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query) |
+            Q(user__username__icontains=query)
+        )
+    if specialty:
+        doctors = doctors.filter(specialization__name__icontains=specialty)
+    
+    # Annotate average rating
+    doctors = doctors.annotate(avg_rating=Avg('ratings__rating'))
+    
+    data = []
+    for doc in doctors:
+        data.append({
+            'id': doc.id,
+            'name': f"Dr. {doc.user.get_full_name() or doc.user.username}",
+            'specialization': doc.specialization.name if doc.specialization else 'General',
+            'rating': round(doc.avg_rating or 0, 1),
+            'image': '/static/appointments/images/doctor-placeholder.jpg',  # you can change this
+        })
+    return JsonResponse({'doctors': data})
+
+def rate_doctor(request, doctor_id):
+    """Handle rating submission via POST (AJAX)"""
+    if not request.user.is_authenticated or request.user.role != 'patient':
+        return JsonResponse({'error': 'Only patients can rate'}, status=403)
+    
+    doctor = get_object_or_404(DoctorProfile, id=doctor_id)
+    patient = request.user.patient_profile
+    
+    if request.method == 'POST':
+        rating_value = int(request.POST.get('rating'))
+        comment = request.POST.get('comment', '')
+        
+        # Update or create rating
+        rating, created = DoctorRating.objects.update_or_create(
+            doctor=doctor, patient=patient,
+            defaults={'rating': rating_value, 'comment': comment}
+        )
+        
+        # Calculate new average
+        avg_rating = doctor.ratings.aggregate(Avg('rating'))['rating__avg']
+        return JsonResponse({
+            'success': True,
+            'avg_rating': round(avg_rating or 0, 1),
+            'user_rating': rating_value
+        })
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+# ======================================================================
 
 # -------- Patient Views --------
 @role_required(['patient'])
@@ -310,7 +391,7 @@ def profile_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated.")
-            return redirect('home')
+            return redirect('dashboard')
     else:
         form = form_class(instance=profile)
     return render(request, 'appointments/profile_form.html', {'form': form, 'role': request.user.role})

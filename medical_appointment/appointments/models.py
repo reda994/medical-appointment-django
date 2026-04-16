@@ -30,7 +30,6 @@ class DoctorProfile(models.Model):
     specialization = models.ForeignKey(Specialization, on_delete=models.SET_NULL, null=True)
     license_number = models.CharField(max_length=50, unique=True)
     bio = models.TextField(blank=True)
-    # Profile picture could be added here
 
     def __str__(self):
         return f"Dr. {self.user.get_full_name() or self.user.username}"
@@ -51,11 +50,11 @@ class AvailabilitySlot(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-    is_booked = models.BooleanField(default=False)  # True if already booked
+    is_booked = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['date', 'start_time']
-        unique_together = ['doctor', 'date', 'start_time']  # Prevent duplicate slots
+        unique_together = ['doctor', 'date', 'start_time']
 
     def __str__(self):
         return f"Dr. {self.doctor.user.username} - {self.date} {self.start_time}-{self.end_time}"
@@ -77,3 +76,18 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Appointment: {self.patient.user.username} with Dr.{self.doctor.user.username} on {self.slot.date} at {self.slot.start_time}"
+
+# ========== NEW MODEL FOR RATING SYSTEM ==========
+class DoctorRating(models.Model):
+    """Patient ratings for doctors"""
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='ratings')
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])  # 1-5 stars
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['doctor', 'patient']  # One rating per patient per doctor
+
+    def __str__(self):
+        return f"{self.patient.user.username} rated Dr.{self.doctor.user.username}: {self.rating}★"

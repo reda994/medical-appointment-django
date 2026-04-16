@@ -2,11 +2,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Public
+    path('', views.home, name='home'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    
     # Auth
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
-    path('', views.home, name='home'),
     path('profile/', views.profile_view, name='profile'),
     
     # Patient
@@ -22,6 +25,10 @@ urlpatterns = [
     path('doctor/availability/add/', views.AvailabilityCreateView.as_view(), name='availability_add'),
     path('doctor/availability/edit/<int:pk>/', views.AvailabilityUpdateView.as_view(), name='availability_edit'),
     path('doctor/availability/delete/<int:pk>/', views.AvailabilityDeleteView.as_view(), name='availability_delete'),
+    
+    # Search & Rating
+    path('search-doctors/', views.search_doctors, name='search_doctors'),
+    path('rate-doctor/<int:doctor_id>/', views.rate_doctor, name='rate_doctor'),
     
     # Admin
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),

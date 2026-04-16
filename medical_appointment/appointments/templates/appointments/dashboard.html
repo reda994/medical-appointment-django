@@ -1,0 +1,24 @@
+{% extends 'appointments/base.html' %}
+
+{% block content %}
+<h2>Dashboard</h2>
+{% if user.role == 'patient' %}
+    <h3>Your Upcoming Appointments</h3>
+    <ul>
+        {% for app in upcoming_appointments %}
+            <li>{{ app.slot.date }} with Dr. {{ app.doctor.user.username }} ({{ app.status }})</li>
+        {% empty %}
+            <li>No upcoming appointments.</li>
+        {% endfor %}
+    </ul>
+{% elif user.role == 'doctor' %}
+    <h3>Pending Appointment Requests</h3>
+    <ul>
+        {% for app in pending_appointments %}
+            <li>{{ app.slot.date }} with {{ app.patient.user.username }}</li>
+        {% empty %}
+            <li>No pending requests.</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}

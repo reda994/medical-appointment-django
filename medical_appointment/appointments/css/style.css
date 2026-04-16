@@ -1,0 +1,60 @@
+/* Modern Home Page Styles */
+.hero-section {
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 120px 0;
+}
+.hero-section h1 { font-size: 3rem; font-weight: 700; }
+.search-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.doctor-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+.doctor-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+.doctor-img {
+    height: 200px;
+    object-fit: cover;
+}
+.star-rating {
+    color: #ffc107;
+    font-size: 1.2rem;
+}
+.about-section img {
+    transition: transform 0.5s;
+}
+.about-section img:hover {
+    transform: scale(1.02);
+}
+.section-title {
+    position: relative;
+    margin-bottom: 40px;
+}
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #0d6efd;
+}
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,15 +1,280 @@
 {% extends 'appointments/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* (same CSS as before) */
+    .hero-section {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                    url("{% static '/appointments/images/clinic-medical.webp' %}");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 120px 0;
+    }
+    .hero-section h1 { font-size: 3rem; font-weight: 700; }
+    .search-card {
+        background: rgba(255,255,255,0.95);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .doctor-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .doctor-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .doctor-img {
+        height: 200px;
+        object-fit: cover;
+    }
+    .star-rating {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    .section-title {
+        position: relative;
+        margin-bottom: 40px;
+    }
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: #0d6efd;
+    }
+    .fade-in {
+        animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-4">Welcome, {{ user.username }}!</h1>
-    <p class="lead">You are logged in as a {{ user.role }}.</p>
-    <hr class="my-4">
-    {% if user.role == 'patient' %}
-        <p>You have {{ upcoming_appointments|length }} upcoming appointment(s).</p>
-        <a class="btn btn-primary btn-lg" href="{% url 'doctor_list' %}" role="button">Book Appointment</a>
-    {% elif user.role == 'doctor' %}
-        <p>You have {{ pending_appointments|length }} pending appointment(s).</p>
-        <a class="btn btn-primary btn-lg" href="{% url 'doctor_appointments' %}" role="button">View Appointments</a>
-    {% endif %}
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold fade-in">Find the Best Doctors Near You</h1>
+        <p class="lead mb-4 fade-in">Book appointments with trusted medical professionals. Easy, fast, and secure.</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="search-card fade-in">
+                    <div class="row g-2">
+                        <div class="col-md-5">
+                            <input type="text" id="searchDoctor" class="form-control" placeholder="Doctor name...">
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" id="searchSpecialty" class="form-control" placeholder="Specialty (e.g., Cardiology)">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" id="searchBtn">Search</button>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        {% if not user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login to Book</a>
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg ms-2">Register</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center section-title">How It Works</h2>
+        <div class="row g-4">
+            <div class="col-md-4 text-center fade-in">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="80" alt="Search">
+                <h4 class="mt-3">1. Search</h4>
+                <p>Find doctors by name, specialty, or location.</p>
+            </div>
+            <div class="col-md-4 text-center fade-in">
+                <img src="https://cdn-icons-png.flaticon.com/512/3096/3096129.png" width="80" alt="Book">
+                <h4 class="mt-3">2. Book</h4>
+                <p>Choose available time slots instantly.</p>
+            </div>
+            <div class="col-md-4 text-center fade-in">
+                <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" width="80" alt="Consult">
+                <h4 class="mt-3">3. Consult</h4>
+                <p>Meet your doctor online or in-person.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Doctors Preview -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center section-title">Our Top Doctors</h2>
+        <div class="row" id="doctorsPreview">
+            <div class="text-center">Loading doctors...</div>
+        </div>
+    </div>
+</section>
+
+<!-- Rating Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rate Your Doctor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="ratingDoctorId">
+                <div class="mb-3">
+                    <label>Your Rating (1-5 stars)</label>
+                    <select id="ratingValue" class="form-select">
+                        <option value="5">★★★★★ (5)</option>
+                        <option value="4">★★★★☆ (4)</option>
+                        <option value="3">★★★☆☆ (3)</option>
+                        <option value="2">★★☆☆☆ (2)</option>
+                        <option value="1">★☆☆☆☆ (1)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Comment (optional)</label>
+                    <textarea id="ratingComment" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitRating">Submit Rating</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Pass Django authentication status to JavaScript -->
+<div id="authData" data-authenticated="{{ user.is_authenticated|lower }}" data-login-url="{% url 'login' %}"></div>
+<script>
+    // This variable will be used in the main script to avoid Django tags inside JavaScript
+    const authData = document.getElementById('authData');
+    window.isUserAuthenticated = authData.dataset.authenticated === 'true';
+    window.loginUrl = authData.dataset.loginUrl;
+</script>
+
+<script>
+    function loadTopDoctors() {
+        fetch('/search-doctors/')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('doctorsPreview');
+                container.innerHTML = '';
+                if (!data.doctors || data.doctors.length === 0) {
+                    container.innerHTML = '<div class="text-center">No doctors available.</div>';
+                    return;
+                }
+                data.doctors.slice(0, 6).forEach(doc => {
+                    const fullStars = Math.floor(doc.rating);
+                    const emptyStars = 5 - fullStars;
+                    const stars = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
+                    container.innerHTML += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card doctor-card h-100">
+                                <img src="${doc.image}" class="card-img-top doctor-img" alt="${doc.name}" onerror="this.src='https://randomuser.me/api/portraits/med/${doc.id % 100}.jpg'">
+                                <div class="card-body">
+                                    <h5 class="card-title">${doc.name}</h5>
+                                    <p class="card-text"><strong>${doc.specialization}</strong></p>
+                                    <div class="star-rating">${stars} (${doc.rating || 0})</div>
+                                    <button class="btn btn-outline-primary mt-2 rate-btn" data-id="${doc.id}">Rate Doctor</button>
+                                    <a href="/book/${doc.id}/" class="btn btn-primary mt-2">Book Appointment</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                attachRateEvents();
+            });
+    }
+
+    function attachRateEvents() {
+        document.querySelectorAll('.rate-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!window.isUserAuthenticated) {
+                    alert('Please login to rate doctors.');
+                    window.location.href = window.loginUrl;
+                    return;
+                }
+                document.getElementById('ratingDoctorId').value = btn.dataset.id;
+                new bootstrap.Modal(document.getElementById('ratingModal')).show();
+            });
+        });
+    }
+
+    document.getElementById('submitRating').addEventListener('click', () => {
+        const doctorId = document.getElementById('ratingDoctorId').value;
+        const rating = document.getElementById('ratingValue').value;
+        const comment = document.getElementById('ratingComment').value;
+        fetch(`/rate-doctor/${doctorId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `rating=${rating}&comment=${encodeURIComponent(comment)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Thank you for rating!');
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Please login as patient'));
+            }
+        });
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        const q = document.getElementById('searchDoctor').value;
+        const specialty = document.getElementById('searchSpecialty').value;
+        fetch(`/search-doctors/?q=${encodeURIComponent(q)}&specialty=${encodeURIComponent(specialty)}`)
+            .then(res => res.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('searchResults');
+                if (!data.doctors || data.doctors.length === 0) {
+                    resultsDiv.innerHTML = '<div class="alert alert-info">No doctors found.</div>';
+                    return;
+                }
+                let html = '<div class="row">';
+                data.doctors.forEach(doc => {
+                    const fullStars = Math.floor(doc.rating);
+                    const emptyStars = 5 - fullStars;
+                    const stars = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
+                    html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>${doc.name}</h5>
+                                    <p>${doc.specialization}</p>
+                                    <div class="star-rating">${stars} (${doc.rating || 0})</div>
+                                    <a href="/book/${doc.id}/" class="btn btn-sm btn-primary">Book</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                resultsDiv.innerHTML = html;
+            });
+    });
+
+    loadTopDoctors();
+</script>
 {% endblock %}

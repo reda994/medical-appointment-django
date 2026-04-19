@@ -1,30 +1,70 @@
 {% extends 'appointments/base.html' %}
+{% load static %}
 {% block content %}
-<h2>Doctors</h2>
-<form method="get" class="mb-3">
-    <label>Filter by Specialization:</label>
-    <select name="specialization" class="form-select w-auto d-inline-block">
-        <option value="">All</option>
-        {% for spec in specializations %}
-            <option value="{{ spec.id }}" {% if selected_spec == spec.id|stringformat:"s" %}selected{% endif %}>{{ spec.name }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit" class="btn btn-primary">Filter</button>
-</form>
-<div class="row">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Our Doctors</h2>
+</div>
+
+<div class="card shadow-sm border-0 mb-5 rounded-4">
+    <div class="card-body p-4">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-auto">
+                <label class="col-form-label fw-semibold text-muted"><i class="bi bi-funnel me-2"></i>Filter by Specialization:</label>
+            </div>
+            <div class="col-md-4">
+                <select name="specialization" class="form-select form-select-lg bg-light border-0">
+                    <option value="">All Specializations</option>
+                    {% for spec in specializations %}
+                        <option value="{{ spec.id }}" {% if selected_spec == spec.id|stringformat:"s" %}selected{% endif %}>{{ spec.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4 fw-semibold shadow-sm">Apply Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
     {% for doctor in doctors %}
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h5>
-                    <p class="card-text">Specialization: {{ doctor.specialization.name|default:"Not specified" }}</p>
-                    <p class="card-text">{{ doctor.bio|truncatewords:20 }}</p>
-                    <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-success">Book Appointment</a>
+        <div class="col-md-6 col-lg-4">
+            <div class="card doctor-card h-100 shadow-sm border-0">
+                <img src="https://ui-avatars.com/api/?name={{ doctor.user.get_full_name|default:doctor.user.username|urlencode }}&background=random&size=200" class="card-img-top doctor-img" alt="Dr. {{ doctor.user.username }}">
+                <div class="card-body text-center p-4">
+                    <h5 class="card-title fw-bold mb-1">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h5>
+                    <p class="card-text text-primary mb-3 fw-medium">{{ doctor.specialization.name|default:"General Practice" }}</p>
+                    <p class="card-text text-muted small mb-4">{{ doctor.bio|default:"Experienced medical professional dedicated to patient care."|truncatewords:20 }}</p>
+                    <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-primary w-100 rounded-pill fw-semibold shadow-sm">Book Appointment</a>
                 </div>
             </div>
         </div>
     {% empty %}
-        <p>No doctors found.</p>
+        <div class="col-12">
+            <div class="empty-state card shadow-sm border-0 rounded-4">
+                <img src="{% static 'appointments/images/empty_state.png' %}" alt="No doctors found" class="img-fluid mb-4" style="max-height: 200px;">
+                <h4 class="fw-bold">No Doctors Found</h4>
+                <p class="text-muted">We couldn't find any doctors matching your criteria. Try selecting a different specialization.</p>
+                <a href="{% url 'doctor_list' %}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold mt-2">Clear Filters</a>
+            </div>
+        </div>
     {% endfor %}
 </div>
+
+<style>
+    .doctor-card {
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        background: var(--surface-color);
+        transition: var(--transition-normal);
+    }
+    .doctor-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover) !important;
+    }
+    .doctor-img {
+        height: 220px;
+        object-fit: cover;
+    }
+</style>
 {% endblock %}

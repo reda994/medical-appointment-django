@@ -1,14 +1,63 @@
 {% extends 'appointments/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2>{% if object %}Edit{% else %}Add New{% endif %} Availability Slot</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% url 'manage_availability' %}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-0 text-center pt-5 pb-0">
+                <div class="d-inline-block bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3">
+                    <i class="bi bi-calendar-check fs-2"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{% if object %}Edit Availability{% else %}Add Availability{% endif %}</h3>
+                <p class="text-muted">Set up your schedule for patient bookings</p>
+            </div>
+            <div class="card-body p-4 p-sm-5 pt-3">
+                <form method="post" id="availabilityForm" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Date Field -->
+                    <div class="form-floating mb-3">
+                        <input type="date" name="{{ form.date.html_name }}" id="{{ form.date.id_for_label }}" class="form-control form-control-lg bg-light border-0" {% if form.date.value %}value="{{ form.date.value|date:'Y-m-d' }}"{% endif %} required>
+                        <label for="{{ form.date.id_for_label }}" class="text-muted">Date</label>
+                        {% if form.date.errors %}
+                            <div class="text-danger small mt-1 ms-1">{{ form.date.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Time Fields Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="time" name="{{ form.start_time.html_name }}" id="{{ form.start_time.id_for_label }}" class="form-control form-control-lg bg-light border-0" {% if form.start_time.value %}value="{{ form.start_time.value|time:'H:i' }}"{% endif %} required>
+                                <label for="{{ form.start_time.id_for_label }}" class="text-muted">Start Time</label>
+                            </div>
+                            {% if form.start_time.errors %}
+                                <div class="text-danger small mt-1 ms-1">{{ form.start_time.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="time" name="{{ form.end_time.html_name }}" id="{{ form.end_time.id_for_label }}" class="form-control form-control-lg bg-light border-0" {% if form.end_time.value %}value="{{ form.end_time.value|time:'H:i' }}"{% endif %} required>
+                                <label for="{{ form.end_time.id_for_label }}" class="text-muted">End Time</label>
+                            </div>
+                            {% if form.end_time.errors %}
+                                <div class="text-danger small mt-1 ms-1">{{ form.end_time.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3 border-0 bg-danger bg-opacity-10 text-danger mb-4">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm">Save Slot</button>
+                        <a href="{% url 'manage_availability' %}" class="btn btn-light btn-lg rounded-pill fw-semibold text-muted">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

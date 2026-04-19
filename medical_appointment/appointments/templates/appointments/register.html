@@ -1,65 +1,74 @@
 {% extends 'appointments/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h3>Create Account</h3>
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-0 text-center pt-5 pb-0">
+                <div class="d-inline-block bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3">
+                    <i class="bi bi-person-plus fs-2"></i>
+                </div>
+                <h3 class="fw-bold mb-1">Create Account</h3>
+                <p class="text-muted">Join us to book or manage appointments</p>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4 p-sm-5 pt-3">
                 <form method="post" id="registerForm" novalidate>
                     {% csrf_token %}
                     
-                    <!-- Username -->
-                    <div class="mb-3">
-                        <label for="id_username" class="form-label">Username</label>
-                        <input type="text" name="username" id="id_username" class="form-control" required>
-                    </div>
+                    <div class="row g-3">
+                        <!-- Username -->
+                        <div class="col-md-6 form-floating mb-2">
+                            <input type="text" name="username" id="id_username" class="form-control form-control-lg bg-light border-0" placeholder="Username" required>
+                            <label for="id_username" class="text-muted ms-2">Username</label>
+                        </div>
 
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="id_email" class="form-label">Email</label>
-                        <input type="email" name="email" id="id_email" class="form-control" required>
+                        <!-- Email -->
+                        <div class="col-md-6 form-floating mb-2">
+                            <input type="email" name="email" id="id_email" class="form-control form-control-lg bg-light border-0" placeholder="Email" required>
+                            <label for="id_email" class="text-muted ms-2">Email</label>
+                        </div>
                     </div>
 
                     <!-- Role -->
-                    <div class="mb-3">
-                        <label for="id_role" class="form-label">I am a</label>
-                        <select name="role" id="id_role" class="form-select" required>
+                    <div class="form-floating mb-3 mt-2">
+                        <select name="role" id="id_role" class="form-select form-select-lg bg-light border-0" required>
                             <option value="patient">Patient</option>
                             <option value="doctor">Doctor</option>
                         </select>
+                        <label for="id_role" class="text-muted">I am a</label>
                     </div>
 
                     <!-- Specialization (only for doctors) -->
                     <div class="mb-3" id="specializationDiv" style="display: none;">
-                        <label for="id_specialization" class="form-label">Specialization (for doctors)</label>
-                        <select name="specialization" id="id_specialization" class="form-select">
-                            <option value="">---------</option>
-                            {% for spec in form.fields.specialization.queryset %}
-                                <option value="{{ spec.id }}">{{ spec.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <small class="text-muted">Select your medical specialization.</small>
+                        <div class="form-floating">
+                            <select name="specialization" id="id_specialization" class="form-select form-select-lg bg-light border-0">
+                                <option value="">---------</option>
+                                {% for spec in form.fields.specialization.queryset %}
+                                    <option value="{{ spec.id }}">{{ spec.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="id_specialization" class="text-muted">Specialization (for doctors)</label>
+                        </div>
+                        <small class="text-muted ms-1"><i class="bi bi-info-circle me-1"></i>Select your medical specialization.</small>
                     </div>
 
                     <!-- Password -->
-                    <div class="mb-3">
-                        <label for="id_password1" class="form-label">Password</label>
-                        <input type="password" name="password1" id="id_password1" class="form-control" required>
+                    <div class="form-floating mb-3 mt-2">
+                        <input type="password" name="password1" id="id_password1" class="form-control form-control-lg bg-light border-0" placeholder="Password" required>
+                        <label for="id_password1" class="text-muted">Password</label>
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="mb-3">
-                        <label for="id_password2" class="form-label">Confirm Password</label>
-                        <input type="password" name="password2" id="id_password2" class="form-control" required>
-                        <div id="passwordMatchMsg" class="form-text"></div>
+                    <div class="form-floating mb-4 position-relative">
+                        <input type="password" name="password2" id="id_password2" class="form-control form-control-lg bg-light border-0" placeholder="Confirm Password" required>
+                        <label for="id_password2" class="text-muted">Confirm Password</label>
+                        <div id="passwordMatchMsg" class="form-text ms-1 mt-1 position-absolute w-100 text-end pe-2"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-semibold shadow-sm mb-3">Register</button>
                 </form>
-                <hr>
-                <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                <div class="text-center mt-4">
+                    <p class="text-muted mb-0">Already have an account? <a href="{% url 'login' %}" class="text-primary fw-semibold text-decoration-none">Login here</a></p>
+                </div>
             </div>
         </div>
     </div>

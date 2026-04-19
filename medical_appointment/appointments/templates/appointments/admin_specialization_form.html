@@ -1,15 +1,36 @@
 {% extends 'appointments/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2>{{ title }}</h2>
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3"><label>Name</label><input type="text" name="name" class="form-control" value="{{ spec.name|default:'' }}" required></div>
-            <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="3">{{ spec.description|default:'' }}</textarea></div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% url 'admin_specializations' %}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-0 text-center pt-5 pb-0">
+                <div class="d-inline-block bg-info bg-opacity-10 text-info rounded-circle p-3 mb-3" style="color: #8b5cf6 !important;">
+                    <i class="bi bi-tags fs-2"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ title }}</h3>
+                <p class="text-muted">Fill out the form below to save changes.</p>
+            </div>
+            <div class="card-body p-4 p-sm-5 pt-3">
+                <form method="post" id="specForm" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-floating mb-4">
+                        <input type="text" name="name" id="id_name" class="form-control form-control-lg bg-light border-0" value="{{ spec.name|default:'' }}" placeholder="Name" required>
+                        <label for="id_name" class="text-muted">Specialization Name</label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <textarea name="description" id="id_description" class="form-control bg-light border-0" placeholder="Description" style="height: 120px">{{ spec.description|default:'' }}</textarea>
+                        <label for="id_description" class="text-muted">Description</label>
+                    </div>
+
+                    <div class="d-grid gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm">Save Specialization</button>
+                        <a href="{% url 'admin_specializations' %}" class="btn btn-light btn-lg rounded-pill fw-semibold text-muted">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

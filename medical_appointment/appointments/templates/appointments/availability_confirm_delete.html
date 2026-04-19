@@ -1,15 +1,24 @@
 {% extends 'appointments/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card border-danger">
-            <div class="card-header bg-danger text-white">Confirm Delete</div>
-            <div class="card-body">
-                <p>Are you sure you want to delete the slot on <strong>{{ object.date }} at {{ object.start_time }}</strong>?</p>
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-0 text-center pt-5 pb-0">
+                <div class="d-inline-block bg-danger bg-opacity-10 text-danger rounded-circle p-3 mb-3">
+                    <i class="bi bi-exclamation-triangle fs-2"></i>
+                </div>
+                <h3 class="fw-bold mb-1">Confirm Delete</h3>
+            </div>
+            <div class="card-body p-4 p-sm-5 text-center">
+                <p class="text-muted mb-4">Are you sure you want to delete the availability slot on<br>
+                <strong class="text-main fs-5">{{ object.date }} at {{ object.start_time }}</strong>?</p>
+                <p class="text-danger small mb-4">This action cannot be undone.</p>
                 <form method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Yes, delete</button>
-                    <a href="{% url 'manage_availability' %}" class="btn btn-secondary">Cancel</a>
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-semibold shadow-sm">Yes, Delete Slot</button>
+                        <a href="{% url 'manage_availability' %}" class="btn btn-light btn-lg rounded-pill fw-semibold text-muted">Cancel</a>
+                    </div>
                 </form>
             </div>
         </div>

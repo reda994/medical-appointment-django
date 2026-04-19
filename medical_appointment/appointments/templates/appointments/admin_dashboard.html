@@ -1,45 +1,95 @@
 {% extends 'appointments/base.html' %}
 {% block content %}
-<h2>Admin Dashboard</h2>
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Total Users</h5>
-                <p class="card-text display-4">{{ total_users }}</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Admin Dashboard</h2>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 rounded-4" style="border-bottom: 4px solid var(--primary-color) !important;">
+            <div class="card-body p-4 text-center">
+                <div class="d-inline-block bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3">
+                    <i class="bi bi-people fs-3"></i>
+                </div>
+                <p class="text-muted text-uppercase fw-semibold mb-1 small tracking-wide">Total Users</p>
+                <h2 class="display-5 fw-bold text-main mb-0">{{ total_users }}</h2>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Doctors</h5>
-                <p class="card-text display-4">{{ total_doctors }}</p>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 rounded-4" style="border-bottom: 4px solid var(--secondary-color) !important;">
+            <div class="card-body p-4 text-center">
+                <div class="d-inline-block bg-success bg-opacity-10 text-success rounded-circle p-3 mb-3">
+                    <i class="bi bi-heart-pulse fs-3"></i>
+                </div>
+                <p class="text-muted text-uppercase fw-semibold mb-1 small tracking-wide">Doctors</p>
+                <h2 class="display-5 fw-bold text-main mb-0">{{ total_doctors }}</h2>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Patients</h5>
-                <p class="card-text display-4">{{ total_patients }}</p>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 rounded-4" style="border-bottom: 4px solid #8b5cf6 !important;">
+            <div class="card-body p-4 text-center">
+                <div class="d-inline-block bg-info bg-opacity-10 text-info rounded-circle p-3 mb-3" style="color: #8b5cf6 !important;">
+                    <i class="bi bi-person-badge fs-3"></i>
+                </div>
+                <p class="text-muted text-uppercase fw-semibold mb-1 small tracking-wide">Patients</p>
+                <h2 class="display-5 fw-bold text-main mb-0">{{ total_patients }}</h2>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Appointments</h5>
-                <p class="card-text display-4">{{ total_appointments }}</p>
-                <small>Pending: {{ pending_appointments }}</small>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 rounded-4" style="border-bottom: 4px solid #f59e0b !important;">
+            <div class="card-body p-4 text-center">
+                <div class="d-inline-block bg-warning bg-opacity-10 text-warning rounded-circle p-3 mb-3">
+                    <i class="bi bi-calendar-check fs-3"></i>
+                </div>
+                <p class="text-muted text-uppercase fw-semibold mb-1 small tracking-wide">Appointments</p>
+                <h2 class="display-5 fw-bold text-main mb-2">{{ total_appointments }}</h2>
+                <span class="badge rounded-pill badge-soft-warning fw-medium px-2 py-1">{{ pending_appointments }} Pending</span>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-4"><a href="{% url 'admin_users' %}" class="btn btn-outline-primary w-100">Manage Users</a></div>
-    <div class="col-md-4"><a href="{% url 'admin_specializations' %}" class="btn btn-outline-primary w-100">Manage Specializations</a></div>
-    <div class="col-md-4"><a href="{% url 'admin_doctors' %}" class="btn btn-outline-primary w-100">Manage Doctors</a></div>
+
+<!-- Quick Links -->
+<h4 class="fw-bold mb-4">Quick Management</h4>
+<div class="row g-4">
+    <div class="col-md-3">
+        <a href="{% url 'admin_users' %}" class="card shadow-sm border-0 text-decoration-none hover-lift rounded-4 h-100">
+            <div class="card-body p-4 d-flex align-items-center">
+                <i class="bi bi-person-gear fs-2 text-primary me-3"></i>
+                <h5 class="fw-semibold text-main mb-0">Users</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'admin_doctors' %}" class="card shadow-sm border-0 text-decoration-none hover-lift rounded-4 h-100">
+            <div class="card-body p-4 d-flex align-items-center">
+                <i class="bi bi-heart-pulse fs-2 text-success me-3"></i>
+                <h5 class="fw-semibold text-main mb-0">Doctors</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'admin_specializations' %}" class="card shadow-sm border-0 text-decoration-none hover-lift rounded-4 h-100">
+            <div class="card-body p-4 d-flex align-items-center">
+                <i class="bi bi-tags fs-2 text-info me-3" style="color: #8b5cf6 !important;"></i>
+                <h5 class="fw-semibold text-main mb-0">Specialties</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'admin_appointments' %}" class="card shadow-sm border-0 text-decoration-none hover-lift rounded-4 h-100">
+            <div class="card-body p-4 d-flex align-items-center">
+                <i class="bi bi-calendar3 fs-2 text-warning me-3"></i>
+                <h5 class="fw-semibold text-main mb-0">Appointments</h5>
+            </div>
+        </a>
+    </div>
 </div>
-<div class="mt-3"><a href="{% url 'admin_appointments' %}" class="btn btn-outline-secondary w-100">View All Appointments</a></div>
 {% endblock %}

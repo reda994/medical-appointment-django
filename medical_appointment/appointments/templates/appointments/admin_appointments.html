@@ -1,23 +1,60 @@
 {% extends 'appointments/base.html' %}
+{% load static %}
 {% block content %}
-<h2>All Appointments</h2>
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Booked At</th></tr>
-    </thead>
-    <tbody>
-        {% for app in appointments %}
-        <tr>
-            <td>{{ app.patient.user.username }}</td>
-            <td>Dr. {{ app.doctor.user.username }}</td>
-            <td>{{ app.slot.date }}</td>
-            <td>{{ app.slot.start_time }}</td>
-            <td>{{ app.status|title }}</td>
-            <td>{{ app.booked_at|date:"Y-m-d H:i" }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6">No appointments.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">All Appointments</h2>
+</div>
+
+{% if appointments %}
+<div class="table-responsive">
+    <table class="table table-modern table-hover align-middle mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">Patient</th>
+                <th>Doctor</th>
+                <th>Schedule</th>
+                <th>Status</th>
+                <th class="text-end pe-4">Booked At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in appointments %}
+            <tr>
+                <td class="ps-4">
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name={{ app.patient.user.username|urlencode }}&background=random&size=30" class="rounded-circle me-2" alt="{{ app.patient.user.username }}">
+                        <span class="fw-medium text-main">{{ app.patient.user.username }}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="text-muted">Dr. {{ app.doctor.user.username }}</div>
+                </td>
+                <td>
+                    <div class="fw-medium">{{ app.slot.date|date:"M d, Y" }}</div>
+                    <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ app.slot.start_time|time:"g:i A" }}</div>
+                </td>
+                <td>
+                    <span class="badge rounded-pill badge-soft-{% if app.status == 'pending' %}warning{% elif app.status == 'accepted' %}success{% elif app.status == 'rejected' %}danger{% elif app.status == 'cancelled' %}secondary{% else %}primary{% endif %} px-3 py-2 fw-semibold">
+                        {{ app.status|title }}
+                    </span>
+                </td>
+                <td class="text-end pe-4 text-muted small">
+                    {{ app.booked_at|date:"M d, Y H:i" }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="empty-state card shadow-sm border-0 rounded-4">
+            <img src="{% static 'appointments/images/empty_state.png' %}" alt="No appointments" class="img-fluid mb-4" style="max-height: 200px;">
+            <h4 class="fw-bold">No Appointments Found</h4>
+            <p class="text-muted">There are no appointments registered in the system yet.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

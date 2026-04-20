@@ -1,28 +1,70 @@
 {% extends 'appointments/base.html' %}
+{% load static %}
 {% block content %}
-<div class="d-flex justify-content-between mb-3">
-    <h2>All Users</h2>
-    <a href="{% url 'admin_user_create' %}" class="btn btn-success">+ Add User</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">All Users</h2>
+    <a href="{% url 'admin_user_create' %}" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm"><i class="bi bi-person-plus me-2"></i>Add User</a>
 </div>
-<table class="table table-bordered table-striped">
-    <thead class="table-dark"><tr><th>Username</th><th>Email</th><th>Role</th><th>Active</th><th>Actions</th></tr></thead>
-    <tbody>
-        {% for user in users %}
-        <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role|title }}</td>
-            <td>{% if user.is_active %}✓{% else %}✗{% endif %}</td>
-            <td>
-                <a href="{% url 'admin_user_edit' user.id %}" class="btn btn-sm btn-primary">Edit</a>
-                {% if not user.is_superuser %}
-                <a href="{% url 'admin_user_delete' user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5">No users.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+{% if users %}
+<div class="table-responsive">
+    <table class="table table-modern table-hover align-middle mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th class="text-end pe-4">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td class="ps-4">
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=random&size=40" class="rounded-circle me-3" alt="{{ user.username }}">
+                        <div>
+                            <div class="fw-semibold text-main">{{ user.username }}</div>
+                            {% if user.get_full_name %}<div class="text-muted small">{{ user.get_full_name }}</div>{% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="text-muted"><i class="bi bi-envelope me-1"></i>{{ user.email }}</div>
+                </td>
+                <td>
+                    <span class="badge rounded-pill badge-soft-{% if user.role == 'admin' %}danger{% elif user.role == 'doctor' %}success{% else %}primary{% endif %} px-3 py-2 fw-semibold">
+                        {{ user.role|title }}
+                    </span>
+                </td>
+                <td>
+                    {% if user.is_active %}
+                        <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+                    {% else %}
+                        <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Inactive</span>
+                    {% endif %}
+                </td>
+                <td class="text-end pe-4">
+                    <a href="{% url 'admin_user_edit' user.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1"><i class="bi bi-pencil me-1"></i> Edit</a>
+                    {% if not user.is_superuser %}
+                    <a href="{% url 'admin_user_delete' user.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Delete this user?')"><i class="bi bi-trash me-1"></i> Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="empty-state card shadow-sm border-0 rounded-4">
+            <img src="{% static 'appointments/images/empty_state.png' %}" alt="No users" class="img-fluid mb-4" style="max-height: 200px;">
+            <h4 class="fw-bold">No Users Found</h4>
+            <p class="text-muted">There are no users registered in the system yet.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

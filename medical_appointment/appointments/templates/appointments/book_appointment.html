@@ -1,15 +1,45 @@
 {% extends 'appointments/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2>Book Appointment with Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
-        <p><strong>Specialization:</strong> {{ doctor.specialization.name|default:"Not specified" }}</p>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Book Now</button>
-            <a href="{% url 'doctor_list' %}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-0 text-center pt-5 pb-0">
+                <img src="https://ui-avatars.com/api/?name={{ doctor.user.get_full_name|default:doctor.user.username|urlencode }}&background=random&size=100" class="rounded-circle shadow-sm mb-3" alt="Dr. {{ doctor.user.username }}">
+                <h3 class="fw-bold mb-1">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h3>
+                <p class="text-primary fw-medium mb-0">{{ doctor.specialization.name|default:"General Practice" }}</p>
+                <p class="text-muted small mt-2">Please select an available time slot below to book your appointment.</p>
+            </div>
+            <div class="card-body p-4 p-sm-5 pt-3">
+                <form method="post" id="bookForm" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.slot.id_for_label }}" class="form-label text-muted fw-semibold ms-1">Available Slots</label>
+                        <select name="{{ form.slot.html_name }}" id="{{ form.slot.id_for_label }}" class="form-select form-select-lg bg-light border-0" required>
+                            {% for choice in form.slot.field.choices %}
+                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.slot.errors %}
+                            <div class="text-danger small mt-1 ms-1">{{ form.slot.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <textarea name="{{ form.notes.html_name }}" id="{{ form.notes.id_for_label }}" class="form-control bg-light border-0" placeholder="Reason for visit..." style="height: 120px"></textarea>
+                        <label for="{{ form.notes.id_for_label }}" class="text-muted ms-1">Reason for visit / Notes (Optional)</label>
+                        {% if form.notes.errors %}
+                            <div class="text-danger small mt-1 ms-1">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm">Confirm Booking</button>
+                        <a href="{% url 'doctor_list' %}" class="btn btn-light btn-lg rounded-pill fw-semibold text-muted">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,25 +1,65 @@
 {% extends 'appointments/base.html' %}
+{% load static %}
 {% block content %}
-<h2>My Appointments</h2>
-<table class="table">
-    <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>
-        {% for app in appointments %}
-        <tr>
-            <td>{{ app.patient.user.get_full_name|default:app.patient.user.username }}</td>
-            <td>{{ app.slot.date }}</td>
-            <td>{{ app.slot.start_time }}</td>
-            <td>{{ app.status }}</td>
-            <td>
-                {% if app.status == 'pending' %}
-                    <a href="{% url 'update_appointment_status' app.id 'accepted' %}" class="btn btn-sm btn-success">Accept</a>
-                    <a href="{% url 'update_appointment_status' app.id 'rejected' %}" class="btn btn-sm btn-danger">Reject</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5">No appointments.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">My Appointments</h2>
+    <a href="{% url 'manage_availability' %}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold shadow-sm"><i class="bi bi-calendar-range me-2"></i>Manage Availability</a>
+</div>
+
+{% if appointments %}
+<div class="table-responsive">
+    <table class="table table-modern table-hover align-middle mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th class="text-end pe-4">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in appointments %}
+            <tr>
+                <td class="ps-4">
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name={{ app.patient.user.get_full_name|default:app.patient.user.username|urlencode }}&background=random&size=40" class="rounded-circle me-3" alt="{{ app.patient.user.username }}">
+                        <div class="fw-semibold text-main">{{ app.patient.user.get_full_name|default:app.patient.user.username }}</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="fw-medium">{{ app.slot.date|date:"M d, Y" }}</div>
+                </td>
+                <td>
+                    <div class="text-muted"><i class="bi bi-clock me-1"></i>{{ app.slot.start_time|time:"g:i A" }} - {{ app.slot.end_time|time:"g:i A" }}</div>
+                </td>
+                <td>
+                    <span class="badge rounded-pill badge-soft-{% if app.status == 'pending' %}warning{% elif app.status == 'accepted' %}success{% elif app.status == 'rejected' %}danger{% elif app.status == 'cancelled' %}secondary{% else %}primary{% endif %} px-3 py-2 fw-semibold">
+                        {{ app.status|title }}
+                    </span>
+                </td>
+                <td class="text-end pe-4">
+                    {% if app.status == 'pending' %}
+                        <a href="{% url 'update_appointment_status' app.id 'accepted' %}" class="btn btn-sm btn-success rounded-pill px-3 me-1"><i class="bi bi-check-lg"></i> Accept</a>
+                        <a href="{% url 'update_appointment_status' app.id 'rejected' %}" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="bi bi-x-lg"></i> Reject</a>
+                    {% else %}
+                        <span class="text-muted small">No actions</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="empty-state card shadow-sm border-0 rounded-4">
+            <img src="{% static 'appointments/images/empty_state.png' %}" alt="No appointments" class="img-fluid mb-4" style="max-height: 200px;">
+            <h4 class="fw-bold">No Appointments Yet</h4>
+            <p class="text-muted">You don't have any patient appointments booked yet.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

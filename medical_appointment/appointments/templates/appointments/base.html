@@ -1,20 +1,34 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Appointment System</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link href="{% static 'appointments/css/style.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-light glass-nav sticky-top py-3">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">MedAppointment</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <i class="bi bi-heart-pulse-fill text-primary me-2 fs-3"></i>
+                <span>MedAppointment</span>
+            </a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
                         {% if user.role == 'patient' %}
@@ -26,27 +40,59 @@
                         {% elif user.role == 'admin' %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
                         {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                        <li class="nav-item dropdown ms-lg-3 mt-2 mt-lg-0">
+                            <a class="nav-link dropdown-toggle btn btn-light px-3 rounded-pill d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-2 text-primary"></i>
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                                <li><a class="dropdown-item py-2" href="{% url 'profile' %}"><i class="bi bi-person me-2"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                            </ul>
+                        </li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+                        <li class="nav-item ms-lg-2 mt-2 mt-lg-0"><a class="btn btn-primary rounded-pill px-4" href="{% url 'register' %}">Register</a></li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-    <div class="container mt-4">
+
+    <!-- Floating Alerts -->
+    <div class="floating-alerts-container">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show floating-alert" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'success' %}
+                            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
-        {% block content %}{% endblock %}
     </div>
+
+    <main class="container py-5 min-vh-100">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white border-top py-4 mt-auto">
+        <div class="container text-center text-muted">
+            <p class="mb-0">&copy; 2026 MedAppointment. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

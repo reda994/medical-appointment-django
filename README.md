@@ -82,30 +82,38 @@ medical_appointment/
 - pip
 - Git
 
-### Step 1: Clone the repository
+### Step 1: Clone the repository  
 ```bash
 git clone https://github.com/YOUR_USERNAME/medical-appointment-django.git
 cd medical-appointment-django
+```
 
-
-Step 2: Create and activate virtual environment
+##Step 2: Create and activate virtual environment
+```bash
 python -m venv venv
 source venv/bin/activate      # On Windows: venv\Scripts\activate
-
+```
 Step 3: Install dependencies
+```bash
 pip install django
+```
 
 Step 4: Run migrations
+```bash
 
 python manage.py makemigrations appointments
 python manage.py migrate
+```
 
 Step 5: Create a superuser (admin)
+```bash
 python manage.py createsuperuser
 Set role to admin after creation via Django admin or shell.
+```
 
 
 Step 7: Run the development server
+```bash
 python manage.py runserver
 
 

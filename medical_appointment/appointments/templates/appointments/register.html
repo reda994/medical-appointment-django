@@ -1,119 +1,223 @@
 {% extends 'appointments/base.html' %}
+
+{% block title %}Register — MedAppointment{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: linear-gradient(135deg, #e8f0fe 0%, #f4f7fb 60%, #dbeafe 100%); }
+    .auth-wrapper { min-height: calc(100vh - 68px - 90px); display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
+    .auth-container { width: 100%; max-width: 560px; }
+    .reg-card { background: #fff; border-radius: 24px; box-shadow: 0 20px 60px rgba(13,110,253,0.12); padding: 44px 48px; }
+    .auth-brand { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--primary); margin-bottom: 8px; }
+    .auth-title { font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .auth-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 28px; }
+    .form-label { font-weight: 600; font-size: 0.87rem; color: var(--text); margin-bottom: 6px; }
+    .input-group-toggle { position: relative; }
+    .input-group-toggle .form-control { padding-right: 48px; }
+    .password-toggle {
+        position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; z-index: 5; transition: color 0.2s;
+    }
+    .password-toggle:hover { color: var(--primary); }
+    /* Password strength */
+    .pw-strength-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 8px; overflow: hidden; }
+    .pw-strength-fill { height: 100%; border-radius: 2px; width: 0; transition: width 0.4s ease, background 0.4s ease; }
+    .pw-strength-label { font-size: 0.78rem; margin-top: 4px; }
+    /* Role tabs */
+    .role-tabs { display: flex; gap: 10px; margin-bottom: 4px; }
+    .role-tab {
+        flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 12px;
+        text-align: center; cursor: pointer; transition: all 0.25s; background: #fff;
+    }
+    .role-tab:hover { border-color: var(--primary); background: var(--primary-light); }
+    .role-tab.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .role-tab i { display: block; font-size: 1.5rem; margin-bottom: 4px; }
+    .role-tab span { font-size: 0.85rem; font-weight: 600; }
+    .role-tab input[type=radio] { display: none; }
+    #specializationGroup { transition: all 0.3s ease; }
+    .btn-auth { background: linear-gradient(135deg, var(--primary), #0b5ed7); color: #fff; border: none; padding: 13px; font-size: 1rem; font-weight: 700; border-radius: var(--radius-sm); transition: all 0.3s ease; }
+    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,110,253,0.35); color: #fff; }
+    .auth-divider { text-align: center; position: relative; margin: 20px 0 16px; }
+    .auth-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
+    .auth-divider span { background: #fff; padding: 0 12px; font-size: 0.8rem; color: var(--text-muted); position: relative; }
+    .auth-link { color: var(--primary); font-weight: 600; transition: opacity 0.2s; }
+    .auth-link:hover { opacity: 0.8; text-decoration: underline; }
+    @media (max-width: 576px) { .reg-card { padding: 32px 24px; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h3>Create Account</h3>
-            </div>
-            <div class="card-body">
-                <form method="post" id="registerForm" novalidate>
-                    {% csrf_token %}
-                    
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="reg-card">
+            <div class="auth-brand"><i class="bi bi-heart-pulse-fill me-1"></i>MedAppointment</div>
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join thousands of patients and doctors on our platform.</p>
+
+            <form method="post" id="registerForm" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
                     <!-- Username -->
-                    <div class="mb-3">
-                        <label for="id_username" class="form-label">Username</label>
-                        <input type="text" name="username" id="id_username" class="form-control" required>
+                    <div class="col-12">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
                     </div>
 
                     <!-- Email -->
-                    <div class="mb-3">
-                        <label for="id_email" class="form-label">Email</label>
-                        <input type="email" name="email" id="id_email" class="form-control" required>
+                    <div class="col-12">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
                     </div>
 
-                    <!-- Role -->
-                    <div class="mb-3">
-                        <label for="id_role" class="form-label">I am a</label>
-                        <select name="role" id="id_role" class="form-select" required>
-                            <option value="patient">Patient</option>
-                            <option value="doctor">Doctor</option>
-                        </select>
+                    <!-- Role Selection -->
+                    <div class="col-12">
+                        <label class="form-label">I am a</label>
+                        <div class="role-tabs">
+                            <label class="role-tab" id="tab-patient" for="role_patient">
+                                <input type="radio" name="{{ form.role.html_name }}" id="role_patient" value="patient" {% if form.role.value == 'patient' or not form.role.value %}checked{% endif %}>
+                                <i class="bi bi-person-heart"></i><span>Patient</span>
+                            </label>
+                            <label class="role-tab" id="tab-doctor" for="role_doctor">
+                                <input type="radio" name="{{ form.role.html_name }}" id="role_doctor" value="doctor" {% if form.role.value == 'doctor' %}checked{% endif %}>
+                                <i class="bi bi-bandaid"></i><span>Doctor</span>
+                            </label>
+                        </div>
+                        {% if form.role.errors %}<div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>{% endif %}
                     </div>
 
-                    <!-- Specialization (only for doctors) -->
-                    <div class="mb-3" id="specializationDiv" style="display: none;">
-                        <label for="id_specialization" class="form-label">Specialization (for doctors)</label>
-                        <select name="specialization" id="id_specialization" class="form-select">
-                            <option value="">---------</option>
-                            {% for spec in form.fields.specialization.queryset %}
-                                <option value="{{ spec.id }}">{{ spec.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <small class="text-muted">Select your medical specialization.</small>
+                    <!-- Specialization (Doctor only) -->
+                    <div class="col-12" id="specializationGroup" style="display:none;">
+                        <label for="{{ form.specialization.id_for_label }}" class="form-label">Specialization</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-clipboard2-pulse"></i></span>
+                            {{ form.specialization }}
+                        </div>
+                        {% if form.specialization.errors %}<div class="text-danger small mt-1">{{ form.specialization.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <!-- License (Doctor only) -->
+                    <div class="col-12" id="licenseGroup" style="display:none;">
+                        <label for="{{ form.license_number.id_for_label }}" class="form-label">License Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                            {{ form.license_number }}
+                        </div>
+                        {% if form.license_number.errors %}<div class="text-danger small mt-1">{{ form.license_number.errors.0 }}</div>{% endif %}
                     </div>
 
                     <!-- Password -->
-                    <div class="mb-3">
-                        <label for="id_password1" class="form-label">Password</label>
-                        <input type="password" name="password1" id="id_password1" class="form-control" required>
+                    <div class="col-12">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        <div class="input-group-toggle">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                {{ form.password1 }}
+                            </div>
+                            <button type="button" class="password-toggle" onclick="togglePw('{{ form.password1.id_for_label }}', this)" tabindex="-1"><i class="bi bi-eye"></i></button>
+                        </div>
+                        <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+                        <div class="pw-strength-label text-muted" id="pwStrengthLabel"></div>
+                        {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="mb-3">
-                        <label for="id_password2" class="form-label">Confirm Password</label>
-                        <input type="password" name="password2" id="id_password2" class="form-control" required>
-                        <div id="passwordMatchMsg" class="form-text"></div>
+                    <div class="col-12">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                        <div class="input-group-toggle">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                {{ form.password2 }}
+                            </div>
+                            <button type="button" class="password-toggle" onclick="togglePw('{{ form.password2.id_for_label }}', this)" tabindex="-1"><i class="bi bi-eye"></i></button>
+                        </div>
+                        <div id="pwMatchMsg" class="small mt-1"></div>
+                        {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
-                </form>
-                <hr>
-                <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-            </div>
+                    <div class="col-12 mt-2">
+                        <button type="submit" class="btn btn-auth w-100"><i class="bi bi-person-plus me-2"></i>Create Account</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="auth-divider mt-3"><span>Already have an account?</span></div>
+            <div class="text-center"><a href="{% url 'login' %}" class="auth-link">Sign in instead</a></div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    // Toggle specialization field based on role
-    const roleSelect = document.getElementById('id_role');
-    const specializationDiv = document.getElementById('specializationDiv');
-    const specializationSelect = document.getElementById('id_specialization');
+// Add form-control class to Django form fields
+document.querySelectorAll('#registerForm input:not([type=radio]):not([type=checkbox]), #registerForm select').forEach(el => {
+    el.classList.add('form-control');
+});
+document.querySelectorAll('#registerForm select').forEach(el => el.classList.add('form-select'));
 
-    function toggleSpecialization() {
-        if (roleSelect.value === 'doctor') {
-            specializationDiv.style.display = 'block';
-            specializationSelect.required = true;
+// Role tabs visual
+function updateRoleTabs() {
+    const patientChecked = document.getElementById('role_patient').checked;
+    document.getElementById('tab-patient').classList.toggle('selected', patientChecked);
+    document.getElementById('tab-doctor').classList.toggle('selected', !patientChecked);
+    document.getElementById('specializationGroup').style.display = patientChecked ? 'none' : '';
+    document.getElementById('licenseGroup').style.display = patientChecked ? 'none' : '';
+}
+document.getElementById('role_patient').addEventListener('change', updateRoleTabs);
+document.getElementById('role_doctor').addEventListener('change', updateRoleTabs);
+updateRoleTabs();
+
+// Password toggle
+function togglePw(fieldId, btn) {
+    const field = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    field.type = field.type === 'password' ? 'text' : 'password';
+    icon.className = field.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+
+// Password strength
+const pw1 = document.getElementById('{{ form.password1.id_for_label }}');
+const fill = document.getElementById('pwStrengthFill');
+const label = document.getElementById('pwStrengthLabel');
+const strengthLevels = [
+    { max: 5, color: '#dc3545', text: 'Very Weak', pct: 20 },
+    { max: 7, color: '#fd7e14', text: 'Weak', pct: 40 },
+    { max: 9, color: '#ffc107', text: 'Fair', pct: 60 },
+    { max: 12, color: '#198754', text: 'Strong', pct: 80 },
+    { max: Infinity, color: '#0d6efd', text: 'Very Strong', pct: 100 },
+];
+if (pw1) {
+    pw1.addEventListener('input', () => {
+        const v = pw1.value;
+        if (!v) { fill.style.width='0'; label.textContent=''; return; }
+        const level = strengthLevels.find(l => v.length <= l.max);
+        fill.style.width = level.pct + '%';
+        fill.style.background = level.color;
+        label.textContent = 'Strength: ' + level.text;
+        label.style.color = level.color;
+    });
+}
+
+// Password match
+const pw2 = document.getElementById('{{ form.password2.id_for_label }}');
+const matchMsg = document.getElementById('pwMatchMsg');
+if (pw2) {
+    pw2.addEventListener('input', () => {
+        if (!pw2.value) { matchMsg.textContent=''; return; }
+        if (pw1.value === pw2.value) {
+            matchMsg.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i><span class="text-success">Passwords match</span>';
         } else {
-            specializationDiv.style.display = 'none';
-            specializationSelect.required = false;
-            specializationSelect.value = '';
-        }
-    }
-    roleSelect.addEventListener('change', toggleSpecialization);
-    toggleSpecialization();
-
-    // Password match check
-    const password1 = document.getElementById('id_password1');
-    const password2 = document.getElementById('id_password2');
-    const matchMsg = document.getElementById('passwordMatchMsg');
-
-    function checkMatch() {
-        if (password1.value === password2.value && password1.value !== '') {
-            matchMsg.innerHTML = '<span class="text-success">✓ Passwords match</span>';
-            return true;
-        } else if (password2.value !== '') {
-            matchMsg.innerHTML = '<span class="text-danger">✗ Passwords do not match</span>';
-            return false;
-        } else {
-            matchMsg.innerHTML = '';
-            return false;
-        }
-    }
-    password2.addEventListener('input', checkMatch);
-    password1.addEventListener('input', checkMatch);
-
-    // Form validation
-    const form = document.getElementById('registerForm');
-    form.addEventListener('submit', function(e) {
-        if (!checkMatch()) {
-            e.preventDefault();
-            alert('Passwords do not match.');
-        } else if (roleSelect.value === 'doctor' && !specializationSelect.value) {
-            e.preventDefault();
-            alert('Please select a specialization for doctor registration.');
+            matchMsg.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i><span class="text-danger">Passwords do not match</span>';
         }
     });
+}
 </script>
 {% endblock %}

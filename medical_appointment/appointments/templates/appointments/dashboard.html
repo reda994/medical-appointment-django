@@ -1,24 +1,154 @@
 {% extends 'appointments/base.html' %}
 
+{% block title %}Dashboard — MedAppointment{% endblock %}
+
+{% block extra_css %}
+<style>
+.stat-card {
+    background: #fff; border-radius: var(--radius); padding: 24px 20px;
+    border: 1px solid var(--border); display: flex; align-items: center; gap: 16px;
+    transition: all 0.3s ease;
+}
+.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.stat-icon.blue { background: #dbeafe; color: #2563eb; }
+.stat-icon.green { background: #dcfce7; color: #16a34a; }
+.stat-icon.orange { background: #ffedd5; color: #ea580c; }
+.stat-icon.purple { background: #ede9fe; color: #7c3aed; }
+.stat-info .num { font-size: 1.6rem; font-weight: 800; line-height: 1; color: var(--text); }
+.stat-info .lbl { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+.appt-row { background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 16px; transition: all 0.2s; }
+.appt-row:hover { box-shadow: var(--shadow-sm); border-color: var(--primary); }
+.appt-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,var(--primary),#5badff); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+.appt-info { flex: 1; }
+.appt-doctor { font-weight: 700; font-size: 0.93rem; }
+.appt-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state i { font-size: 3.5rem; color: var(--border); display: block; margin-bottom: 16px; }
+.empty-state h5 { font-weight: 700; color: var(--text); }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Dashboard</h2>
-{% if user.role == 'patient' %}
-    <h3>Your Upcoming Appointments</h3>
-    <ul>
-        {% for app in upcoming_appointments %}
-            <li>{{ app.slot.date }} with Dr. {{ app.doctor.user.username }} ({{ app.status }})</li>
-        {% empty %}
-            <li>No upcoming appointments.</li>
-        {% endfor %}
-    </ul>
-{% elif user.role == 'doctor' %}
-    <h3>Pending Appointment Requests</h3>
-    <ul>
-        {% for app in pending_appointments %}
-            <li>{{ app.slot.date }} with {{ app.patient.user.username }}</li>
-        {% empty %}
-            <li>No pending requests.</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+<div class="sidebar-layout">
+    <!-- Sidebar -->
+    <aside class="med-sidebar">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">{{ user.username|slice:':2'|upper }}</div>
+            <div class="sidebar-user-info">
+                <div class="name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="role"><i class="bi bi-circle-fill text-success me-1" style="font-size:7px;vertical-align:middle;"></i>{{ user.role|capfirst }}</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard' %}" class="sidebar-nav-item active"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a href="{% url 'patient_appointments' %}" class="sidebar-nav-item"><i class="bi bi-calendar-check"></i>My Appointments</a>
+            <a href="{% url 'doctor_list' %}" class="sidebar-nav-item"><i class="bi bi-person-badge"></i>Find Doctors</a>
+            <a href="{% url 'profile' %}" class="sidebar-nav-item"><i class="bi bi-person-circle"></i>Profile</a>
+        </nav>
+        <div class="sidebar-logout"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a></div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="sidebar-content">
+        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+            <div>
+                <h1 class="section-heading">Welcome back, {{ user.get_full_name|default:user.username }} 👋</h1>
+                <p class="section-subtitle">Here's what's happening with your appointments today.</p>
+            </div>
+            <a href="{% url 'doctor_list' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-circle me-2"></i>Book New Appointment
+            </a>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="bi bi-calendar-check"></i></div>
+                    <div class="stat-info">
+                        <div class="num">{{ upcoming_appointments|length }}</div>
+                        <div class="lbl">Upcoming</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+                    <div class="stat-info">
+                        <div class="num">{{ upcoming_appointments|length }}</div>
+                        <div class="lbl">Accepted</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="bi bi-clock-history"></i></div>
+                    <div class="stat-info">
+                        <div class="num">0</div>
+                        <div class="lbl">Pending</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="bi bi-person-badge"></i></div>
+                    <div class="stat-info">
+                        <div class="num">0</div>
+                        <div class="lbl">Doctors Visited</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="bi bi-calendar-event me-2 text-primary"></i>Upcoming Appointments</h5>
+            <a href="{% url 'patient_appointments' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
+        </div>
+
+        {% if upcoming_appointments %}
+            {% for appt in upcoming_appointments %}
+            <div class="appt-row fade-in-up" data-delay="{{ forloop.counter0|add:1 }}">
+                <div class="appt-avatar">{{ appt.doctor.user.username|slice:':2'|upper }}</div>
+                <div class="appt-info">
+                    <div class="appt-doctor">Dr. {{ appt.doctor.user.get_full_name|default:appt.doctor.user.username }}</div>
+                    <div class="appt-meta">
+                        <i class="bi bi-calendar3 me-1"></i>{{ appt.slot.date }}
+                        &bull; <i class="bi bi-clock me-1"></i>{{ appt.slot.start_time }} – {{ appt.slot.end_time }}
+                        &bull; {{ appt.doctor.specialization.name|default:'General' }}
+                    </div>
+                </div>
+                <span class="status-badge status-{{ appt.status }}">
+                    {% if appt.status == 'accepted' %}<i class="bi bi-check-circle-fill"></i>{% elif appt.status == 'pending' %}<i class="bi bi-clock"></i>{% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                    {{ appt.status|capfirst }}
+                </span>
+                {% if appt.status in 'pending,accepted' %}
+                <a href="{% url 'cancel_appointment' appt.id %}" class="btn btn-sm btn-outline-danger rounded-pill ms-2"
+                   onclick="return confirm('Cancel this appointment?')">
+                    <i class="bi bi-x-lg me-1"></i>Cancel
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state med-card">
+                <i class="bi bi-calendar-x"></i>
+                <h5>No upcoming appointments</h5>
+                <p class="mb-4">You haven't booked any appointments yet. Find a doctor and get started!</p>
+                <a href="{% url 'doctor_list' %}" class="btn btn-primary rounded-pill px-5">
+                    <i class="bi bi-search me-2"></i>Find a Doctor
+                </a>
+            </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('[data-delay]').forEach(el => {
+    el.style.animationDelay = (parseInt(el.dataset.delay) * 100) + 'ms';
+});
+</script>
 {% endblock %}

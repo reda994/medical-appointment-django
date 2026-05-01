@@ -16,10 +16,28 @@ class UserRegisterForm(UserCreationForm):
         required=False,
         empty_label="Select your specialization (for doctors)"
     )
+    license_number = forms.CharField(
+        max_length=50,
+        required=False,
+        help_text="Required for doctors."
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'role', 'specialization']
+        fields = ['username', 'email', 'password1', 'password2', 'role', 'specialization', 'license_number']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        license_number = cleaned_data.get('license_number')
+
+        if role == 'doctor':
+            if not license_number:
+                self.add_error('license_number', 'License number is required for doctors.')
+            elif DoctorProfile.objects.filter(license_number=license_number).exists():
+                self.add_error('license_number', 'This license number is already registered.')
+        
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -34,7 +52,10 @@ class UserRegisterForm(UserCreationForm):
             user.save()
             # Create profile based on role
             if user.role == 'doctor':
-                doctor_profile = DoctorProfile.objects.create(user=user)
+                doctor_profile = DoctorProfile.objects.create(
+                    user=user,
+                    license_number=self.cleaned_data.get('license_number', '')
+                )
                 specialization = self.cleaned_data.get('specialization')
                 if specialization:
                     doctor_profile.specialization = specialization
@@ -52,10 +73,28 @@ class AdminUserCreateForm(UserCreationForm):
         required=False,
         empty_label="Select specialization (for doctors)"
     )
+    license_number = forms.CharField(
+        max_length=50,
+        required=False,
+        help_text="Required for doctors."
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'role', 'specialization']
+        fields = ['username', 'email', 'password1', 'password2', 'role', 'specialization', 'license_number']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        license_number = cleaned_data.get('license_number')
+
+        if role == 'doctor':
+            if not license_number:
+                self.add_error('license_number', 'License number is required for doctors.')
+            elif DoctorProfile.objects.filter(license_number=license_number).exists():
+                self.add_error('license_number', 'This license number is already registered.')
+        
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -65,7 +104,10 @@ class AdminUserCreateForm(UserCreationForm):
             user.save()
             # Create profile only for patient/doctor, not admin
             if user.role == 'doctor':
-                doctor_profile = DoctorProfile.objects.create(user=user)
+                doctor_profile = DoctorProfile.objects.create(
+                    user=user,
+                    license_number=self.cleaned_data.get('license_number', '')
+                )
                 specialization = self.cleaned_data.get('specialization')
                 if specialization:
                     doctor_profile.specialization = specialization

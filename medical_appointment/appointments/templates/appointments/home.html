@@ -1,218 +1,673 @@
 {% extends 'appointments/base.html' %}
 {% load static %}
 
+{% block title %}MedAppointment — Find the Best Doctors Near You{% endblock %}
+
 {% block extra_css %}
 <style>
-    /* (same CSS as before) */
+    /* ── Hero ── */
     .hero-section {
-        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                    url("{% static '/appointments/images/clinic-medical.webp' %}");
-        background-size: cover;
-        background-position: center;
-        color: white;
-        padding: 120px 0;
-    }
-    .hero-section h1 { font-size: 3rem; font-weight: 700; }
-    .search-card {
-        background: rgba(255,255,255,0.95);
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    .doctor-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        border: none;
-        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(9, 40, 90, 0.82) 0%, rgba(13, 110, 253, 0.75) 100%),
+        url("{% static '' %}") center/cover no-repeat;
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #fff;
+        padding: 80px 20px;
+        position: relative;
         overflow: hidden;
     }
-    .doctor-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    }
-    .doctor-img {
-        height: 200px;
-        object-fit: cover;
-    }
-    .star-rating {
-        color: #ffc107;
-        font-size: 1.2rem;
-    }
-    .section-title {
-        position: relative;
-        margin-bottom: 40px;
-    }
-    .section-title:after {
+
+    .hero-section::before {
         content: '';
         position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background: #0d6efd;
+        inset: 0;
+        background: radial-gradient(ellipse at 60% 40%, rgba(91, 173, 255, 0.18) 0%, transparent 70%);
     }
-    .fade-in {
-        animation: fadeIn 1s ease-in;
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 780px;
+        margin: 0 auto;
     }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 6px 18px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    .hero-badge i {
+        color: #ffd900;
+    }
+
+    .hero-title {
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 20px;
+    }
+
+    .hero-title span {
+        color: #7ec8ff;
+    }
+
+    .hero-desc {
+        font-size: 1.1rem;
+        opacity: 0.88;
+        margin-bottom: 36px;
+        max-width: 540px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-cta .btn {
+        padding: 14px 32px;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 50px;
+    }
+
+    .hero-cta .btn-light {
+        color: var(--primary);
+    }
+
+    .hero-cta .btn-light:hover {
+        background: #e8f0fe;
+        transform: translateY(-2px);
+    }
+
+    .hero-cta .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+    /* ── Search Card ── */
+    .search-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(13, 110, 253, 0.2);
+        padding: 28px 32px;
+        max-width: 820px;
+        margin: -60px auto 0;
+        position: relative;
+        z-index: 10;
+    }
+
+    .search-card h5 {
+        font-weight: 700;
+        color: var(--text);
+        font-size: 1rem;
+        margin-bottom: 16px;
+    }
+
+    .search-card .form-control {
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    .search-card .btn {
+        border-radius: 50px;
+        padding: 12px 28px;
+        font-size: 0.95rem;
+    }
+
+    .search-spinner {
+        display: none;
+    }
+
+    /* ── How It Works ── */
+    .how-section {
+        padding: 100px 20px 80px;
+        background: var(--bg);
+    }
+
+    .section-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
+
+    .section-title-lg {
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 12px;
+    }
+
+    .section-desc {
+        color: var(--text-muted);
+        max-width: 480px;
+        font-size: 0.97rem;
+    }
+
+    .how-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 36px 28px;
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .how-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-8px);
+    }
+
+    .how-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+
+    .how-icon.blue {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .how-icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .how-icon.purple {
+        background: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .how-step {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+    }
+
+    .how-card h4 {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .how-card p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* ── Top Doctors ── */
+    .doctors-section {
+        padding: 80px 20px;
+        background: #fff;
+    }
+
+    .doctor-card {
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .doctor-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-8px);
+    }
+
+    .doctor-card-img-wrap {
+        position: relative;
+        overflow: hidden;
+        height: 200px;
+        background: linear-gradient(135deg, #e8f0fe, #dbeafe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .doctor-card-img-wrap img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+    }
+
+    .doctor-card:hover .doctor-card-img-wrap img {
+        transform: scale(1.07);
+    }
+
+    .doctor-card-body {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .doctor-name {
+        font-weight: 700;
+        font-size: 1.02rem;
+        margin-bottom: 4px;
+    }
+
+    .doctor-spec {
+        font-size: 0.83rem;
+        color: var(--primary);
+        font-weight: 600;
+        background: var(--primary-light);
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 50px;
+        margin-bottom: 12px;
+    }
+
+    .star-display {
+        color: #f59e0b;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+
+    .star-display span {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        margin-left: 4px;
+    }
+
+    .doctor-card-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .doctor-card-actions .btn {
+        flex: 1;
+        font-size: 0.82rem;
+        padding: 8px 10px;
+    }
+
+    /* ── Interactive Star Rating ── */
+    .star-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .star-input input {
+        display: none;
+    }
+
+    .star-input label {
+        font-size: 2rem;
+        color: #d1d5db;
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+
+    .star-input input:checked~label,
+    .star-input label:hover,
+    .star-input label:hover~label {
+        color: #f59e0b;
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+        background: linear-gradient(135deg, var(--primary), #0b5ed7);
+        padding: 40px 20px;
+    }
+
+    .stat-item {
+        text-align: center;
+        color: #fff;
+    }
+
+    .stat-num {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-top: 4px;
+    }
+
+    /* ── Search Results ── */
+    #searchResults {
+        margin-top: 12px;
+    }
+
+    .search-result-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        background: var(--bg);
+        border-radius: 12px;
+        margin-bottom: 10px;
+        border: 1px solid var(--border);
+        transition: all 0.2s ease;
+    }
+
+    .search-result-card:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+    }
+
+    .search-result-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), #5badff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .search-result-info {
+        flex: 1;
+    }
+
+    .search-result-name {
+        font-weight: 700;
+        font-size: 0.93rem;
+    }
+
+    .search-result-spec {
+        font-size: 0.8rem;
+        color: var(--text-muted);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold fade-in">Find the Best Doctors Near You</h1>
-        <p class="lead mb-4 fade-in">Book appointments with trusted medical professionals. Easy, fast, and secure.</p>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="search-card fade-in">
-                    <div class="row g-2">
-                        <div class="col-md-5">
-                            <input type="text" id="searchDoctor" class="form-control" placeholder="Doctor name...">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" id="searchSpecialty" class="form-control" placeholder="Specialty (e.g., Cardiology)">
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-primary w-100" id="searchBtn">Search</button>
-                        </div>
-                    </div>
-                    <div id="searchResults" class="mt-3"></div>
-                </div>
-            </div>
-        </div>
+<!-- ── Hero ── -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="hero-badge fade-in-up"><i class="bi bi-star-fill"></i> Trusted by 10,000+ patients</div>
+        <h1 class="hero-title fade-in-up delay-1">Find the <span>Best Doctors</span> Near You</h1>
+        <p class="hero-desc fade-in-up delay-2">Book appointments with trusted medical professionals. Easy, fast, and
+            secure — all in one place.</p>
         {% if not user.is_authenticated %}
-        <div class="mt-4">
-            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login to Book</a>
-            <a href="{% url 'register' %}" class="btn btn-light btn-lg ms-2">Register</a>
+        <div class="hero-cta d-flex justify-content-center flex-wrap gap-3 fade-in-up delay-3">
+            <a href="{% url 'login' %}" class="btn btn-light"><i class="bi bi-box-arrow-in-right me-2"></i>Login to
+                Book</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-light"><i class="bi bi-person-plus me-2"></i>Register
+                Free</a>
+        </div>
+        {% else %}
+        <div class="hero-cta d-flex justify-content-center flex-wrap gap-3 fade-in-up delay-3">
+            <a href="{% url 'dashboard' %}" class="btn btn-light"><i class="bi bi-speedometer2 me-2"></i>Go to
+                Dashboard</a>
         </div>
         {% endif %}
     </div>
 </section>
 
-<!-- About Section -->
-<section class="py-5 bg-light">
+<!-- ── Search Card ── -->
+<div class="container">
+    <div class="search-card fade-in-up delay-4">
+        <h5><i class="bi bi-search me-2 text-primary"></i>Search for a Doctor</h5>
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" id="searchDoctor" class="form-control" placeholder="Doctor name...">
+            </div>
+            <div class="col-md-5">
+                <input type="text" id="searchSpecialty" class="form-control" placeholder="Specialty (e.g., Cardiology)">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" id="searchBtn">
+                    <span id="searchBtnText"><i class="bi bi-search me-1"></i>Search</span>
+                    <span class="search-spinner spinner-border spinner-border-sm" id="searchSpinner"
+                        role="status"></span>
+                </button>
+            </div>
+        </div>
+        <div id="searchResults"></div>
+    </div>
+</div>
+
+<!-- ── How It Works ── -->
+<section class="how-section">
     <div class="container">
-        <h2 class="text-center section-title">How It Works</h2>
-        <div class="row g-4">
-            <div class="col-md-4 text-center fade-in">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="80" alt="Search">
-                <h4 class="mt-3">1. Search</h4>
-                <p>Find doctors by name, specialty, or location.</p>
+        <div class="text-center mb-5">
+            <div class="section-label">Simple Process</div>
+            <h2 class="section-title-lg">How It Works</h2>
+            <p class="section-desc mx-auto">Get the care you need in three simple steps — no paperwork, no waiting.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 col-sm-6 fade-in-up delay-1">
+                <div class="how-card">
+                    <div class="how-icon blue"><i class="bi bi-search-heart"></i></div>
+                    <div class="how-step">Step 1</div>
+                    <h4>Search</h4>
+                    <p>Browse doctors by name, specialty, or rating. Find exactly who you need.</p>
+                </div>
             </div>
-            <div class="col-md-4 text-center fade-in">
-                <img src="https://cdn-icons-png.flaticon.com/512/3096/3096129.png" width="80" alt="Book">
-                <h4 class="mt-3">2. Book</h4>
-                <p>Choose available time slots instantly.</p>
+            <div class="col-md-4 col-sm-6 fade-in-up delay-2">
+                <div class="how-card">
+                    <div class="how-icon green"><i class="bi bi-calendar2-check"></i></div>
+                    <div class="how-step">Step 2</div>
+                    <h4>Book</h4>
+                    <p>Pick an available slot and confirm your appointment in seconds — anytime.</p>
+                </div>
             </div>
-            <div class="col-md-4 text-center fade-in">
-                <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" width="80" alt="Consult">
-                <h4 class="mt-3">3. Consult</h4>
-                <p>Meet your doctor online or in-person.</p>
+            <div class="col-md-4 col-sm-6 fade-in-up delay-3">
+                <div class="how-card">
+                    <div class="how-icon purple"><i class="bi bi-person-video3"></i></div>
+                    <div class="how-step">Step 3</div>
+                    <h4>Consult</h4>
+                    <p>Meet your doctor in-person or online. Get the care you deserve.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Top Doctors Preview -->
-<section class="py-5">
+<!-- ── Stats Bar ── -->
+<div class="stats-bar">
     <div class="container">
-        <h2 class="text-center section-title">Our Top Doctors</h2>
-        <div class="row" id="doctorsPreview">
-            <div class="text-center">Loading doctors...</div>
-        </div>
-    </div>
-</section>
-
-<!-- Rating Modal -->
-<div class="modal fade" id="ratingModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Rate Your Doctor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3 stat-item">
+                <div class="stat-num">500+</div>
+                <div class="stat-label">Verified Doctors</div>
             </div>
-            <div class="modal-body">
-                <input type="hidden" id="ratingDoctorId">
-                <div class="mb-3">
-                    <label>Your Rating (1-5 stars)</label>
-                    <select id="ratingValue" class="form-select">
-                        <option value="5">★★★★★ (5)</option>
-                        <option value="4">★★★★☆ (4)</option>
-                        <option value="3">★★★☆☆ (3)</option>
-                        <option value="2">★★☆☆☆ (2)</option>
-                        <option value="1">★☆☆☆☆ (1)</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label>Comment (optional)</label>
-                    <textarea id="ratingComment" class="form-control" rows="3"></textarea>
-                </div>
+            <div class="col-6 col-md-3 stat-item">
+                <div class="stat-num">10K+</div>
+                <div class="stat-label">Happy Patients</div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="submitRating">Submit Rating</button>
+            <div class="col-6 col-md-3 stat-item">
+                <div class="stat-num">30+</div>
+                <div class="stat-label">Specializations</div>
+            </div>
+            <div class="col-6 col-md-3 stat-item">
+                <div class="stat-num">98%</div>
+                <div class="stat-label">Satisfaction Rate</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Pass Django authentication status to JavaScript -->
-<div id="authData" data-authenticated="{{ user.is_authenticated|lower }}" data-login-url="{% url 'login' %}"></div>
+<!-- ── Top Doctors ── -->
+<section class="doctors-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Medical Experts</div>
+            <h2 class="section-title-lg">Our Top Doctors</h2>
+            <p class="section-desc mx-auto">Highly rated specialists ready to serve you with excellence and compassion.
+            </p>
+        </div>
+        <div class="row g-4" id="doctorsPreview">
+            <div class="col-12 text-center py-4">
+                <div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div>
+                <p class="text-muted mt-3">Loading doctors...</p>
+            </div>
+        </div>
+        {% if user.is_authenticated and user.role == 'patient' %}
+        <div class="text-center mt-5">
+            <a href="{% url 'doctor_list' %}" class="btn btn-primary btn-lg rounded-pill px-5"><i
+                    class="bi bi-grid me-2"></i>View All Doctors</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ── Rating Modal ── -->
+<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="ratingModalLabel"><i
+                        class="bi bi-star-fill text-warning me-2"></i>Rate Your Doctor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <input type="hidden" id="ratingDoctorId">
+                <p class="text-muted mb-3">How was your experience? Your feedback helps others.</p>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold mb-3 d-block text-center">Select your rating</label>
+                    <div class="star-input" id="starInput">
+                        <input type="radio" id="star5" name="starRating" value="5"><label for="star5" title="5 stars"><i
+                                class="bi bi-star-fill"></i></label>
+                        <input type="radio" id="star4" name="starRating" value="4"><label for="star4" title="4 stars"><i
+                                class="bi bi-star-fill"></i></label>
+                        <input type="radio" id="star3" name="starRating" value="3"><label for="star3" title="3 stars"><i
+                                class="bi bi-star-fill"></i></label>
+                        <input type="radio" id="star2" name="starRating" value="2"><label for="star2" title="2 stars"><i
+                                class="bi bi-star-fill"></i></label>
+                        <input type="radio" id="star1" name="starRating" value="1"><label for="star1" title="1 star"><i
+                                class="bi bi-star-fill"></i></label>
+                    </div>
+                    <div class="text-center mt-2"><span id="ratingLabel" class="text-muted fs-6">Click a star to
+                            rate</span></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Comment <span
+                            class="text-muted fw-normal">(optional)</span></label>
+                    <textarea id="ratingComment" class="form-control" rows="3"
+                        placeholder="Share your experience..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0 px-4">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-5" id="submitRating">
+                    <i class="bi bi-send me-2"></i>Submit Rating
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auth data for JS -->
+<div id="authData" data-authenticated="{{ user.is_authenticated|lower }}" data-login-url="{% url 'login' %}"
+    style="display:none;"></div>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-    // This variable will be used in the main script to avoid Django tags inside JavaScript
     const authData = document.getElementById('authData');
     window.isUserAuthenticated = authData.dataset.authenticated === 'true';
     window.loginUrl = authData.dataset.loginUrl;
-</script>
 
-<script>
+    const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+    // Star hover labels
+    document.querySelectorAll('#starInput label').forEach(label => {
+        label.addEventListener('mouseenter', () => {
+            const val = label.previousElementSibling.value;
+            document.getElementById('ratingLabel').textContent = ratingLabels[val] + ' (' + val + ' star' + (val > 1 ? 's' : '') + ')';
+        });
+    });
+    document.querySelectorAll('#starInput input').forEach(inp => {
+        inp.addEventListener('change', () => {
+            document.getElementById('ratingLabel').textContent = ratingLabels[inp.value] + ' (' + inp.value + ' star' + (inp.value > 1 ? 's' : '') + ')';
+        });
+    });
+
+    // Load Top Doctors
     function loadTopDoctors() {
         fetch('/search-doctors/')
-            .then(res => res.json())
+            .then(r => r.json())
             .then(data => {
                 const container = document.getElementById('doctorsPreview');
                 container.innerHTML = '';
                 if (!data.doctors || data.doctors.length === 0) {
-                    container.innerHTML = '<div class="text-center">No doctors available.</div>';
+                    container.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">No doctors available yet.</p></div>';
                     return;
                 }
-                data.doctors.slice(0, 6).forEach(doc => {
-                    const fullStars = Math.floor(doc.rating);
-                    const emptyStars = 5 - fullStars;
-                    const stars = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
+                data.doctors.slice(0, 6).forEach((doc, i) => {
+                    const stars = renderStars(doc.rating);
+                    const initials = doc.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
                     container.innerHTML += `
-                        <div class="col-md-4 mb-4">
-                            <div class="card doctor-card h-100">
-                                <img src="${doc.image}" class="card-img-top doctor-img" alt="${doc.name}" onerror="this.src='https://randomuser.me/api/portraits/med/${doc.id % 100}.jpg'">
-                                <div class="card-body">
-                                    <h5 class="card-title">${doc.name}</h5>
-                                    <p class="card-text"><strong>${doc.specialization}</strong></p>
-                                    <div class="star-rating">${stars} (${doc.rating || 0})</div>
-                                    <button class="btn btn-outline-primary mt-2 rate-btn" data-id="${doc.id}">Rate Doctor</button>
-                                    <a href="/book/${doc.id}/" class="btn btn-primary mt-2">Book Appointment</a>
+                    <div class="col-lg-4 col-md-6 fade-in-up" style="animation-delay:${i * 0.08}s">
+                        <div class="doctor-card">
+                            <div class="doctor-card-img-wrap">
+                                <img src="${doc.image}" alt="${doc.name}"
+                                     onerror="this.onerror=null;this.parentElement.innerHTML='<div style=\'width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#0d6efd,#5badff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:700;border:4px solid #fff;box-shadow:0 4px 20px rgba(0,0,0,0.15);\'>${initials}</div>'">
+                            </div>
+                            <div class="doctor-card-body">
+                                <div class="doctor-name">${doc.name}</div>
+                                <div class="doctor-spec">${doc.specialization}</div>
+                                <div class="star-display">${stars}<span>${doc.rating || '0.0'}</span></div>
+                                <div class="doctor-card-actions">
+                                    <button class="btn btn-outline-primary rate-btn" data-id="${doc.id}"><i class="bi bi-star me-1"></i>Rate</button>
+                                    <a href="/book/${doc.id}/" class="btn btn-primary"><i class="bi bi-calendar-plus me-1"></i>Book</a>
                                 </div>
                             </div>
                         </div>
-                    `;
+                    </div>`;
                 });
                 attachRateEvents();
             });
+    }
+
+    function renderStars(rating) {
+        const full = Math.floor(rating);
+        const half = rating % 1 >= 0.5 ? 1 : 0;
+        const empty = 5 - full - half;
+        return '<i class="bi bi-star-fill"></i>'.repeat(full) +
+            (half ? '<i class="bi bi-star-half"></i>' : '') +
+            '<i class="bi bi-star"></i>'.repeat(empty);
     }
 
     function attachRateEvents() {
         document.querySelectorAll('.rate-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (!window.isUserAuthenticated) {
-                    alert('Please login to rate doctors.');
-                    window.location.href = window.loginUrl;
-                    return;
+                    window.location.href = window.loginUrl; return;
                 }
                 document.getElementById('ratingDoctorId').value = btn.dataset.id;
+                document.querySelectorAll('#starInput input').forEach(i => i.checked = false);
+                document.getElementById('ratingLabel').textContent = 'Click a star to rate';
                 new bootstrap.Modal(document.getElementById('ratingModal')).show();
             });
         });
@@ -220,60 +675,78 @@
 
     document.getElementById('submitRating').addEventListener('click', () => {
         const doctorId = document.getElementById('ratingDoctorId').value;
-        const rating = document.getElementById('ratingValue').value;
+        const ratingInput = document.querySelector('#starInput input:checked');
+        if (!ratingInput) { document.getElementById('ratingLabel').textContent = 'Please select a star rating!'; return; }
+        const rating = ratingInput.value;
         const comment = document.getElementById('ratingComment').value;
         fetch(`/rate-doctor/${doctorId}/`, {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `rating=${rating}&comment=${encodeURIComponent(comment)}`
-        })
-        .then(res => res.json())
-        .then(data => {
+        }).then(r => r.json()).then(data => {
+            bootstrap.Modal.getInstance(document.getElementById('ratingModal')).hide();
             if (data.success) {
-                alert('Thank you for rating!');
-                location.reload();
+                showQuickToast('success', 'Thank you for rating!', 'Your feedback has been submitted.');
+                loadTopDoctors();
             } else {
-                alert('Error: ' + (data.error || 'Please login as patient'));
+                showQuickToast('error', 'Error', data.error || 'Please login as patient to rate.');
             }
         });
     });
 
+    // Search
     document.getElementById('searchBtn').addEventListener('click', () => {
         const q = document.getElementById('searchDoctor').value;
         const specialty = document.getElementById('searchSpecialty').value;
+        const btn = document.getElementById('searchBtn');
+        document.getElementById('searchBtnText').style.display = 'none';
+        document.getElementById('searchSpinner').style.display = 'inline-block';
+        btn.disabled = true;
         fetch(`/search-doctors/?q=${encodeURIComponent(q)}&specialty=${encodeURIComponent(specialty)}`)
-            .then(res => res.json())
+            .then(r => r.json())
             .then(data => {
+                btn.disabled = false;
+                document.getElementById('searchBtnText').style.display = '';
+                document.getElementById('searchSpinner').style.display = 'none';
                 const resultsDiv = document.getElementById('searchResults');
                 if (!data.doctors || data.doctors.length === 0) {
-                    resultsDiv.innerHTML = '<div class="alert alert-info">No doctors found.</div>';
+                    resultsDiv.innerHTML = '<div class="alert alert-info mt-2 rounded-3"><i class="bi bi-info-circle me-2"></i>No doctors found matching your search.</div>';
                     return;
                 }
-                let html = '<div class="row">';
+                let html = '<div class="mt-3"><div class="small text-muted mb-2 fw-semibold">' + data.doctors.length + ' result(s) found</div>';
                 data.doctors.forEach(doc => {
-                    const fullStars = Math.floor(doc.rating);
-                    const emptyStars = 5 - fullStars;
-                    const stars = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
-                    html += `
-                        <div class="col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>${doc.name}</h5>
-                                    <p>${doc.specialization}</p>
-                                    <div class="star-rating">${stars} (${doc.rating || 0})</div>
-                                    <a href="/book/${doc.id}/" class="btn btn-sm btn-primary">Book</a>
-                                </div>
-                            </div>
+                    const stars = renderStars(doc.rating);
+                    const initials = doc.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                    html += `<div class="search-result-card">
+                        <div class="search-result-avatar">${initials}</div>
+                        <div class="search-result-info">
+                            <div class="search-result-name">${doc.name}</div>
+                            <div class="search-result-spec">${doc.specialization} &bull; <span class="text-warning">${stars}</span> ${doc.rating}</div>
                         </div>
-                    `;
+                        <a href="/book/${doc.id}/" class="btn btn-sm btn-primary rounded-pill px-3">Book</a>
+                    </div>`;
                 });
                 html += '</div>';
                 resultsDiv.innerHTML = html;
             });
     });
+
+    // Enter key search
+    ['searchDoctor', 'searchSpecialty'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+    });
+
+    function showQuickToast(type, title, msg) {
+        const icons = { success: 'check-circle-fill', error: 'x-circle-fill', info: 'info-circle-fill' };
+        const id = 'qt-' + Date.now();
+        const t = document.createElement('div');
+        t.className = 'med-toast toast-' + type; t.id = id;
+        t.innerHTML = `<div class="toast-icon"><i class="bi bi-${icons[type] || 'info-circle-fill'}"></i></div>
+            <div class="toast-body"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>
+            <button class="toast-close" onclick="dismissToast('${id}')"><i class="bi bi-x"></i></button>`;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => dismissToast(id), 4500);
+    }
 
     loadTopDoctors();
 </script>

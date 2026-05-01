@@ -1,14 +1,36 @@
 {% extends 'appointments/base.html' %}
+
+{% block title %}{{ title }} — Admin{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2>{{ title }}</h2>
-        <form method="post">
+<div class="container" style="max-width:520px;padding:40px 16px;">
+    <div class="mb-4">
+        <a href="{% url 'admin_specializations' %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back to Specializations</a>
+    </div>
+    <div class="med-card p-4">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div style="width:44px;height:44px;border-radius:12px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#16a34a;">
+                <i class="bi bi-clipboard2-pulse"></i>
+            </div>
+            <div>
+                <h1 class="fw-bold mb-0" style="font-size:1.2rem;">{{ title }}</h1>
+                <p class="text-muted small mb-0">Define a medical specialty available for doctor profiles.</p>
+            </div>
+        </div>
+        <form method="post" novalidate>
             {% csrf_token %}
-            <div class="mb-3"><label>Name</label><input type="text" name="name" class="form-control" value="{{ spec.name|default:'' }}" required></div>
-            <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="3">{{ spec.description|default:'' }}</textarea></div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% url 'admin_specializations' %}" class="btn btn-secondary">Cancel</a>
+            <div class="mb-3">
+                <label for="spec-name" class="form-label fw-semibold">Specialization Name</label>
+                <input type="text" name="name" id="spec-name" class="form-control" value="{{ spec.name|default:'' }}" required placeholder="e.g. Cardiology">
+            </div>
+            <div class="mb-3">
+                <label for="spec-desc" class="form-label fw-semibold">Description <span class="text-muted fw-normal">(optional)</span></label>
+                <textarea name="description" id="spec-desc" class="form-control" rows="3" placeholder="Brief description of this specialization...">{{ spec.description|default:'' }}</textarea>
+            </div>
+            <div class="d-flex gap-3 mt-4">
+                <a href="{% url 'admin_specializations' %}" class="btn btn-light rounded-pill flex-fill">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill flex-fill"><i class="bi bi-check-circle me-2"></i>{{ title }}</button>
+            </div>
         </form>
     </div>
 </div>

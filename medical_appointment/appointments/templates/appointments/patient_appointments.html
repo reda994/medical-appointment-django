@@ -1,26 +1,94 @@
 {% extends 'appointments/base.html' %}
+
+{% block title %}My Appointments — MedAppointment{% endblock %}
+
 {% block content %}
-<h2>My Appointments</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr>
-    </thead>
-    <tbody>
-        {% for app in appointments %}
-        <tr>
-            <td>Dr. {{ app.doctor.user.username }}</td>
-            <td>{{ app.slot.date }}</td>
-            <td>{{ app.slot.start_time }} - {{ app.slot.end_time }}</td>
-            <td><span class="badge bg-{% if app.status == 'pending' %}warning{% elif app.status == 'accepted' %}success{% elif app.status == 'rejected' %}danger{% else %}secondary{% endif %}">{{ app.status }}</span></td>
-            <td>
-                {% if app.status == 'pending' or app.status == 'accepted' %}
-                    <a href="{% url 'cancel_appointment' app.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Cancel appointment?')">Cancel</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5">No appointments yet.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="sidebar-layout">
+    <aside class="med-sidebar">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">{{ user.username|slice:':2'|upper }}</div>
+            <div class="sidebar-user-info">
+                <div class="name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="role"><i class="bi bi-circle-fill text-success me-1" style="font-size:7px;vertical-align:middle;"></i>Patient</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard' %}" class="sidebar-nav-item"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a href="{% url 'patient_appointments' %}" class="sidebar-nav-item active"><i class="bi bi-calendar-check"></i>My Appointments</a>
+            <a href="{% url 'doctor_list' %}" class="sidebar-nav-item"><i class="bi bi-person-badge"></i>Find Doctors</a>
+            <a href="{% url 'profile' %}" class="sidebar-nav-item"><i class="bi bi-person-circle"></i>Profile</a>
+        </nav>
+        <div class="sidebar-logout"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a></div>
+    </aside>
+    <main class="sidebar-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h1 class="section-heading">My Appointments</h1>
+                <p class="section-subtitle">Track and manage all your medical appointments.</p>
+            </div>
+            <a href="{% url 'doctor_list' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-circle me-2"></i>Book New
+            </a>
+        </div>
+
+        {% if appointments %}
+        <div class="med-card overflow-hidden">
+            <table class="table med-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Specialization</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in appointments %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#5badff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;font-weight:700;flex-shrink:0;">
+                                    {{ appt.doctor.user.username|slice:':2'|upper }}
+                                </div>
+                                <span class="fw-semibold">Dr. {{ appt.doctor.user.get_full_name|default:appt.doctor.user.username }}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted">{{ appt.doctor.specialization.name|default:'General' }}</td>
+                        <td><i class="bi bi-calendar3 me-1 text-primary"></i>{{ appt.slot.date }}</td>
+                        <td><i class="bi bi-clock me-1 text-primary"></i>{{ appt.slot.start_time }}</td>
+                        <td>
+                            <span class="status-badge status-{{ appt.status }}">
+                                {% if appt.status == 'accepted' %}<i class="bi bi-check-circle-fill"></i>
+                                {% elif appt.status == 'pending' %}<i class="bi bi-hourglass-split"></i>
+                                {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                {{ appt.status|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if appt.status == 'pending' or appt.status == 'accepted' %}
+                            <a href="{% url 'cancel_appointment' appt.id %}" class="btn btn-sm btn-outline-danger rounded-pill"
+                               onclick="return confirm('Are you sure you want to cancel?')">
+                                <i class="bi bi-x-lg me-1"></i>Cancel
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="med-card p-5 text-center">
+            <i class="bi bi-calendar-x" style="font-size:3.5rem;color:var(--border);display:block;margin-bottom:16px;"></i>
+            <h5 class="fw-bold">No appointments yet</h5>
+            <p class="text-muted mb-4">Start by booking an appointment with one of our doctors.</p>
+            <a href="{% url 'doctor_list' %}" class="btn btn-primary rounded-pill px-5"><i class="bi bi-search me-2"></i>Find a Doctor</a>
+        </div>
+        {% endif %}
+    </main>
+</div>
 {% endblock %}

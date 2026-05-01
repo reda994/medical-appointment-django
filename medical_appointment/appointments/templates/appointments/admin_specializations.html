@@ -1,24 +1,63 @@
 {% extends 'appointments/base.html' %}
+
+{% block title %}Specializations — Admin{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between mb-3">
-    <h2>Specializations</h2>
-    <a href="{% url 'admin_specialization_create' %}" class="btn btn-success">+ Add</a>
+<div class="sidebar-layout">
+    <aside class="med-sidebar">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">{{ user.username|slice:':2'|upper }}</div>
+            <div class="sidebar-user-info">
+                <div class="name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="role"><i class="bi bi-circle-fill text-warning me-1" style="font-size:7px;vertical-align:middle;"></i>Admin</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'admin_dashboard' %}" class="sidebar-nav-item"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a href="{% url 'admin_users' %}" class="sidebar-nav-item"><i class="bi bi-people"></i>Users</a>
+            <a href="{% url 'admin_specializations' %}" class="sidebar-nav-item active"><i class="bi bi-clipboard2-pulse"></i>Specializations</a>
+            <a href="{% url 'admin_doctors' %}" class="sidebar-nav-item"><i class="bi bi-person-badge"></i>Doctors</a>
+            <a href="{% url 'admin_appointments' %}" class="sidebar-nav-item"><i class="bi bi-calendar-check"></i>Appointments</a>
+        </nav>
+        <div class="sidebar-logout"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a></div>
+    </aside>
+    <main class="sidebar-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h1 class="section-heading">Specializations</h1>
+                <p class="section-subtitle mb-0">Manage all medical specializations available on the platform.</p>
+            </div>
+            <a href="{% url 'admin_specialization_create' %}" class="btn btn-primary rounded-pill px-4"><i class="bi bi-plus-circle me-2"></i>Add Specialization</a>
+        </div>
+        <div class="med-card overflow-hidden">
+            <table class="table med-table mb-0">
+                <thead>
+                    <tr><th>#</th><th>Name</th><th>Description</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for spec in specializations %}
+                    <tr>
+                        <td class="text-muted small">{{ forloop.counter }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width:32px;height:32px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:0.9rem;"><i class="bi bi-clipboard2-pulse"></i></div>
+                                <span class="fw-semibold">{{ spec.name }}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted small">{{ spec.description|default:'—'|truncatechars:60 }}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'admin_specialization_edit' spec.id %}" class="btn btn-sm btn-outline-primary rounded-pill" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'admin_specialization_delete' spec.id %}" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete" onclick="return confirm('Delete {{ spec.name }}?')"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">No specializations found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
 </div>
-<table class="table">
-    <thead class="table-dark"><tr><th>Name</th><th>Description</th><th>Actions</th></tr></thead>
-    <tbody>
-        {% for spec in specializations %}
-        <tr>
-            <td>{{ spec.name }}</td>
-            <td>{{ spec.description|truncatechars:50 }}</td>
-            <td>
-                <a href="{% url 'admin_specialization_edit' spec.id %}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{% url 'admin_specialization_delete' spec.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="3">No specializations.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
 {% endblock %}

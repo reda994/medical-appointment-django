@@ -1,15 +1,60 @@
 {% extends 'appointments/base.html' %}
+
+{% block title %}Book Appointment — MedAppointment{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2>Book Appointment with Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
-        <p><strong>Specialization:</strong> {{ doctor.specialization.name|default:"Not specified" }}</p>
-        <form method="post">
+<div class="container" style="max-width:640px;padding:40px 16px;">
+    <div class="mb-4">
+        <a href="{% url 'doctor_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back to Doctors</a>
+    </div>
+
+    <!-- Doctor Info Card -->
+    <div class="med-card p-0 mb-4 overflow-hidden">
+        <div style="height:100px;background:linear-gradient(135deg,var(--primary),#5badff);position:relative;">
+            <div style="position:absolute;bottom:-30px;left:24px;width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+                <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#5badff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:700;">
+                    {{ doctor.user.username|slice:':2'|upper }}
+                </div>
+            </div>
+        </div>
+        <div style="padding:48px 24px 24px;">
+            <h2 class="fw-bold mb-1" style="font-size:1.3rem;">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
+            <span class="badge rounded-pill" style="background:var(--primary-light);color:var(--primary);font-size:0.82rem;font-weight:600;">
+                <i class="bi bi-clipboard2-pulse me-1"></i>{{ doctor.specialization.name|default:'General' }}
+            </span>
+            {% if doctor.bio %}
+            <p class="text-muted mt-3 mb-0" style="font-size:0.9rem;">{{ doctor.bio }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="med-card p-4">
+        <h3 class="fw-bold mb-4" style="font-size:1.1rem;"><i class="bi bi-calendar-plus me-2 text-primary"></i>Select an Available Slot</h3>
+        <form method="post" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Book Now</button>
-            <a href="{% url 'doctor_list' %}" class="btn btn-secondary">Cancel</a>
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100 rounded-pill mt-2" style="padding:13px;">
+                <i class="bi bi-check-circle me-2"></i>Confirm Booking
+            </button>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('form .form-control, form select, form textarea').forEach(el => {
+    if (!el.classList.contains('form-control') && !el.classList.contains('form-select')) {
+        el.classList.add(el.tagName === 'SELECT' ? 'form-select' : 'form-control');
+    }
+});
+</script>
 {% endblock %}

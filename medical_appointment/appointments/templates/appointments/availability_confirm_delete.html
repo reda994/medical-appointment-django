@@ -1,18 +1,27 @@
 {% extends 'appointments/base.html' %}
+
+{% block title %}Delete Slot — MedAppointment{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card border-danger">
-            <div class="card-header bg-danger text-white">Confirm Delete</div>
-            <div class="card-body">
-                <p>Are you sure you want to delete the slot on <strong>{{ object.date }} at {{ object.start_time }}</strong>?</p>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Yes, delete</button>
-                    <a href="{% url 'manage_availability' %}" class="btn btn-secondary">Cancel</a>
-                </form>
-            </div>
+<div class="container" style="max-width:480px;padding:40px 16px;">
+    <div class="med-card p-4 text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem;color:var(--danger);">
+            <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
+        <h2 class="fw-bold mb-2" style="font-size:1.3rem;">Delete Time Slot?</h2>
+        <p class="text-muted mb-1">You are about to delete the slot:</p>
+        <div class="p-3 rounded-3 mb-4" style="background:var(--bg);border:1px solid var(--border);">
+            <strong><i class="bi bi-calendar3 me-2 text-primary"></i>{{ object.date }}</strong><br>
+            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ object.start_time }} – {{ object.end_time }}</span>
+        </div>
+        <p class="text-danger small mb-4"><i class="bi bi-exclamation-circle me-1"></i>This action cannot be undone.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-3">
+                <a href="{% url 'manage_availability' %}" class="btn btn-light rounded-pill flex-fill">Cancel</a>
+                <button type="submit" class="btn btn-danger rounded-pill flex-fill"><i class="bi bi-trash me-2"></i>Delete Slot</button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

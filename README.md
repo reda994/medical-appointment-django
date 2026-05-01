@@ -15,7 +15,8 @@ A full-featured Django web application where patients can book appointments with
 
 ## 🚀 Live Demo
 
-> *To be deployed – currently localhost only*
+<img width="1916" height="986" alt="image" src="https://github.com/user-attachments/assets/aba02f92-5273-4aef-a71b-7e91d27cd2a2" />
+
 
 ---
 
